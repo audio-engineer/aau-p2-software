@@ -1,0 +1,12 @@
+services:
+  server:
+    image: node:20-alpine
+    user: node
+    working_dir: /home/node/app/
+    environment:
+      - NODE_ENV=development
+    tty: true
+    volumes:
+      - ./:/home/node/app/
+    ports:
+      - 3000:3000
