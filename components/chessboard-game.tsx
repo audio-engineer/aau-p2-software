@@ -1,11 +1,10 @@
-import type { FC } from "react";
+import type { FC, ReactElement } from "react";
 import { useState } from "react";
 import type { Square } from "chess.js";
 import { Chess, type Move } from "chess.js";
 import { Chessboard } from "react-chessboard";
 
-
-const ChessboardGame: FC = () => {
+const ChessboardGame: FC = (): ReactElement => {
   const noPossibleMoves = 0;
   const timeoutLength = 200;
 
@@ -14,7 +13,7 @@ const ChessboardGame: FC = () => {
   const makeAMove = (move: Readonly<Move> | string): Move | null => {
     const gameCopy = Object.assign(
       Object.create(Object.getPrototypeOf(game) as object),
-      game
+      game,
     ) as Chess;
 
     const result: Move | null = gameCopy.move(move);
@@ -44,7 +43,7 @@ const ChessboardGame: FC = () => {
     const move = makeAMove({
       from: sourceSquare as Square,
       to: targetSquare as Square,
-      promotion: "q"
+      promotion: "q",
     });
 
     if (null === move) {
