@@ -1,4 +1,4 @@
-import type { FC } from "react";
+import type { FC, ReactElement } from "react";
 
 interface HelloProperties {
   readonly text: string;
@@ -8,7 +8,7 @@ interface HelloProperties {
 const Hello: FC<HelloProperties> = ({
   text,
   age,
-}: Readonly<HelloProperties>) => {
+}: Readonly<HelloProperties>): ReactElement | null => {
   return (
     <div>
       Hello, {text}! My age is: {age}
