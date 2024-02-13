@@ -1,21 +1,20 @@
 "use client";
 
-import { Chessboard } from "react-chessboard";
-import type { FC } from "react";
-import Hello from "@/app/hello";
+import ChessboardGame from "@/components/chessboard-game";
+import type { FC, ReactElement } from "react";
 import AppBar from "@mui/material/AppBar";
 import IconButton from "@mui/material/IconButton";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 
-const Home: FC = () => {
+const Home: FC = (): ReactElement | null => {
   return (
     <main className="flex min-h-screen items-center justify-around">
       <AppBar>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            AAU P2 Software
+            Chess
           </Typography>
           <IconButton
             size="large"
@@ -28,12 +27,9 @@ const Home: FC = () => {
           </IconButton>
         </Toolbar>
       </AppBar>
-      <Chessboard id="chessboard" boardWidth={560} />
-      <Hello text={"World"} age={27} />
+      <ChessboardGame />
     </main>
   );
 };
-
-Home.displayName = "Home";
 
 export default Home;
