@@ -4,7 +4,7 @@ import type { Square } from "chess.js";
 import { Chess, type Move } from "chess.js";
 import { Chessboard } from "react-chessboard";
 
-const ChessboardGame: FC = (): ReactElement => {
+const ChessboardGame: FC = (): ReactElement | null => {
   const noPossibleMoves = 0;
   const timeoutLength = 200;
 
@@ -16,14 +16,14 @@ const ChessboardGame: FC = (): ReactElement => {
       game,
     ) as Chess;
 
-    const result: Move | null = gameCopy.move(move);
+    const result = gameCopy.move(move);
 
     setGame(gameCopy);
 
     return result;
   };
 
-  const makeRandomMove: () => void = () => {
+  const makeRandomMove = (): void => {
     const possibleMoves = game.moves();
 
     if (
