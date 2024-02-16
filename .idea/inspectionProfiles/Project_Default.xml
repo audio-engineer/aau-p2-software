@@ -62,6 +62,10 @@
     <inspection_tool class="JSUnfilteredForInLoop" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="JSXSyntaxUsed" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="LabeledStatementJS" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="LatexBibinputsRelativePath" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="LatexMissingDocumentEnvironment" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="LatexMissingDocumentclass" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="LatexPackageCouldNotBeFound" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="LongLine" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="MagicNumberJS" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NegatedConditionalExpressionJS" enabled="true" level="WARNING" enabled_by_default="true" />
