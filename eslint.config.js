@@ -14,7 +14,6 @@ export default tseslint.config(
       ...nextPlugin.configs["core-web-vitals"].rules,
     },
   },
-  eslintConfigPrettier,
   {
     ignores: ["eslint.config.js"],
   },
@@ -35,4 +34,5 @@ export default tseslint.config(
       ],
     },
   },
+  eslintConfigPrettier,
 );
