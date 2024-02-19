@@ -1,0 +1,21 @@
+{
+  "name": "app",
+  "workspaceFolder": "/home/node/app/",
+  "dockerComposeFile": "../compose.yaml",
+  "service": "server",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.formatOnSave": true,
+        "files.autoSave": "afterDelay",
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "eslint.experimental.useFlatConfig": true
+      },
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "EditorConfig.EditorConfig"
+      ]
+    }
+  }
+}
