@@ -15,7 +15,7 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ["eslint.config.js"],
+    ignores: ["*.config.*"],
   },
   {
     languageOptions: {
