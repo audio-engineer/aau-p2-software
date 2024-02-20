@@ -11,6 +11,5 @@ jobs:
       - run: npm ci
       - uses: sibiraj-s/action-eslint@v3
         with:
-          eslint-args: '--ignore-pattern=.gitignore'
-          extensions: 'js,ts,jsx,tsx,html,vue'
+          extensions: ts,tsx
           annotations: true
