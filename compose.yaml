@@ -1,6 +1,6 @@
 services:
   server:
-    image: node:20-alpine
+    image: mcr.microsoft.com/devcontainers/typescript-node:20
     user: node
     working_dir: /home/node/app/
     environment:
