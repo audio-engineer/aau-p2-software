@@ -10,3 +10,9 @@ services:
       - ./:/home/node/app/
     ports:
       - 3000:3000
+  stockfish:
+    image: aau-p2/stockfish
+    build:
+      context: ./stockfish
+    ports:
+      - 23249:23249

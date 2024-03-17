@@ -53,6 +53,12 @@ docker compose down
 ### Stockfish
 
 The project includes a simple Stockfish image that provides a containerized version of Stockfish.
+This image can be used as a separate service or as part of the Docker Compose stack.
+When the project is started using `docker compose up -d`, the image will be built automatically if it's not already
+built.
+If the image has been built before, a new container will be started as part of the stack.
+
+### Building Stockfish separately
 
 To build it, in the project root directory run:
 
@@ -60,7 +66,7 @@ To build it, in the project root directory run:
 docker build -t aau-p2/stockfish:latest stockfish/
 ```
 
-### Running Stockfish
+### Running Stockfish separately
 
 After the build has finished, the Stockfish software can be started in a container using the following methods:
 
