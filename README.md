@@ -5,6 +5,15 @@ Copenhagen.
 
 ## Local Development
 
+### Stockfish image
+
+To run this project, you **need** to build the complementary image found in the
+[aau-p2-stockfish](https://github.com/audio-engineer/aau-p2-stockfish) repository first.
+Once it's built, a container will automatically be created from that image once the Docker Compose commands down below
+are run.
+
+### Running the local development environment
+
 To start the Docker Compose project, run:
 
 ```shell
@@ -49,102 +58,3 @@ docker compose down
 ### Development Containers (Visual Studio Code)
 
 ...
-
-### Stockfish
-
-The project includes a simple Stockfish image that provides a containerized version of Stockfish.
-This image can be used as a separate service or as part of the Docker Compose stack.
-When the project is started using `docker compose up -d`, the image will be built automatically if it's not already
-built.
-If the image has been built before, a new container will be started as part of the stack.
-
-### Building Stockfish separately
-
-To build it, in the project root directory run:
-
-```shell
-docker build -t aau-p2/stockfish:latest stockfish/
-```
-
-### Running Stockfish separately
-
-After the build has finished, the Stockfish software can be started in a container using the following methods:
-
-#### 1. `stockfish` command in container
-
-The following command will automatically start the Stockfish software in the container:
-
-```shell
-docker run -it --rm aau-p2/stockfish:latest stockfish
-```
-
-#### 2. Shell session in container
-
-To log into the container and start a new shell session, run:
-
-```shell
-docker run -it --rm aau-p2/stockfish:latest /bin/sh
-```
-
-Stockfish can then be started manually in the container's shell:
-
-```shell
-stockfish
-```
-
-#### 3. Direct Netcat
-
-If the container is run in detached mode and the container's port `23249` is bound to the host's port `23249`, it's
-possible to use Stockfish over TCP:
-
-```shell
-docker run -d --rm -p 23249:23249 aau-p2/stockfish:latest
-```
-
-Now run Netcat to start the connection:
-
-```shell
-# On macOS
-nc localhost 23249
-```
-
-#### 4. SSH login
-
-If the container's port 22 is bound to the host's port 22, it's possible to log into the container using SSH:
-
-```shell
-docker run -d --rm -p 22:22 aau-p2/stockfish:latest
-```
-
-Then run and enter the password `test123`:
-
-```shell
-ssh stockfish@localhost
-```
-
-Now the `stockfish` command can be executed manually:
-
-```shell
-stockfish
-```
-
-#### 5. Forwarded Netcat
-
-Finally, SSH port forwarding can also be used. For this method, start a detached container and bind port `22`:
-
-```shell
-docker run -d --rm -p 22:22 aau-p2/stockfish:latest
-```
-
-Then set up SSH port forwarding. This command will forward the container's port `23249` to port `4040` on the host:
-
-```shell
-ssh -fNTL 4040:localhost:23249 stockfish@localhost
-```
-
-Now Netcat can be run on port `4040`:
-
-```shell
-# On macOS
-nc localhost 4040
-```
