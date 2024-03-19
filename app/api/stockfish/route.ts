@@ -1,16 +1,22 @@
-export interface BestMove {
-  readonly Move: string;
-  readonly centipawn: number;
-  readonly mate: null;
-}
-
 export interface StockfishResponse {
-  readonly data: BestMove[];
+  data: Data;
 }
 
-export async function GET(): Response.json {
+export interface Data {
+  "best-move": BestMove[];
+}
+
+export interface BestMove {
+  Move: string;
+  Centipawn: number;
+  Mate: null;
+}
+
+// TODO Due to issues with finding the correct return type
+// eslint-disable-next-line
+export const GET = async () => {
   const response = await fetch("http://stockfish:8000");
   const responseJson = (await response.json()) as StockfishResponse;
 
   return Response.json({ ...responseJson });
-}
+};
