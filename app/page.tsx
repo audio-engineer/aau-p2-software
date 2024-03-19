@@ -12,9 +12,9 @@ import TextField from "@mui/material/TextField";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Unstable_Grid2";
-import type { StockfishResponse } from "@/pages/api/stockfish";
 import CircularProgress from "@mui/material/CircularProgress";
 import Paper from "@mui/material/Paper";
+import type { StockfishResponse } from "@/app/api/stockfish/route";
 
 const StockfishResponseWindow = ({
   isLoading,
@@ -40,14 +40,11 @@ const Home: FC = (): ReactElement | null => {
   const fetchData = async (): Promise<void> => {
     setIsLoading(true);
 
-    const response = await fetch("/api/stockfish", {
-      method: "post",
-      body: input,
-    });
+    const response = await fetch("/api/stockfish");
 
-    const data = (await response.json()) as StockfishResponse;
+    const responseJson = (await response.json()) as StockfishResponse;
 
-    setStockfishResponse(data.message);
+    setStockfishResponse(JSON.stringify(responseJson.data["best-move"]));
 
     setIsLoading(false);
   };
