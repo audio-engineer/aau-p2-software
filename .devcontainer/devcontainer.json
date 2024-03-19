@@ -3,6 +3,7 @@
   "workspaceFolder": "/home/node/app/",
   "dockerComposeFile": "../compose.yaml",
   "service": "server",
+  "remoteUser": "root",
   "customizations": {
     "vscode": {
       "settings": {
