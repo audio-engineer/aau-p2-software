@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/aau-p2-software.iml" filepath="$PROJECT_DIR$/.idea/aau-p2-software.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/chess-teacher-front-end.iml" filepath="$PROJECT_DIR$/.idea/chess-teacher-front-end.iml" />
     </modules>
   </component>
 </project>

@@ -1,4 +1,4 @@
-# AAU P2 Software
+# ChessTeacher Front End
 
 This is the main frontend repository for the software part of a P2 project created by SW2 group 8 at Aalborg University
 Copenhagen.
@@ -8,7 +8,7 @@ Copenhagen.
 ### Stockfish image
 
 To run this project, you **need** to build the complementary image found in the
-[aau-p2-stockfish](https://github.com/audio-engineer/aau-p2-stockfish) repository first.
+[audio-engineer/chess-teacher-stockfish](https://github.com/audio-engineer/chess-teacher-stockfish) repository first.
 Once it's built, a container will automatically be created from that image once the Docker Compose commands down below
 are run.
 
@@ -25,7 +25,7 @@ or, when using JetBrains WebStorm, by running the `Docker Compose` run configura
 Then, start a new shell session in the `server` container:
 
 ```shell
-docker exec -it aau-p2-software-server-1 /bin/zsh
+docker exec -it chess-teacher-front-end-server-1 /bin/zsh
 ```
 
 The first time the project is cloned, or when dependencies in [`package.json`](./package.json)
