@@ -13,6 +13,6 @@ services:
       - 9229:9229
       - 9230:9230
   stockfish:
-    image: audio-engineer/aau-p2-stockfish:latest
+    image: audio-engineer/chess-teacher-stockfish:latest
     ports:
       - 8000:8000
