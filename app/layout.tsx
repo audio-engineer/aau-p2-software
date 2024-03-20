@@ -7,8 +7,8 @@ import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
 const inter = Roboto({ subsets: ["latin"], weight: "500" });
 
 export const metadata: Metadata = {
-  title: "AAU P2 Software",
-  description: "Next-gen Online Chess Game",
+  title: "ChessTeacher",
+  description: "Next-gen Online Chess Instructor",
 };
 
 interface Children {
