@@ -15,6 +15,24 @@ import Grid from "@mui/material/Unstable_Grid2";
 import CircularProgress from "@mui/material/CircularProgress";
 import Paper from "@mui/material/Paper";
 import type { StockfishResponse } from "@/app/api/stockfish/route";
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, set } from "firebase/database";
+
+// Configuration constants for firebase
+const firebaseConfig = {
+  databaseURL: "http://127.0.0.1:9000?ns=demo-project",
+};
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
+// Temporary tests
+const gameId = 5236
+set(ref(database, 'game/' + gameId), {
+  currentPosition: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  chat: {1: "Hello", 2: "World?", 3: "Yes"}
+});
+
 
 const StockfishResponseWindow = ({
   isLoading,
