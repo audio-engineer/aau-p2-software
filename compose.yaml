@@ -12,6 +12,14 @@ services:
       - 3000:3000
       - 9229:9229
       - 9230:9230
+  firebase:
+    image: audio-engineer/chess-teacher-firebase:latest
+    ports:
+      - 4000:4000
+      - 4400:4400
+      - 4500:4500
+      - 9000:9000
+      - 9099:9099
   stockfish:
     image: audio-engineer/chess-teacher-stockfish:latest
     ports:
