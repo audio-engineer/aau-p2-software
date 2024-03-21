@@ -27,12 +27,12 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 // Temporary tests
-const gameId = 5236
-set(ref(database, 'game/' + gameId), {
+const gameId = 5236;
+// eslint-disable-next-line
+set(ref(database, "game/" + gameId), {
   currentPosition: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-  chat: {1: "Hello", 2: "World?", 3: "Yes"}
+  chat: { 1: "Hello", 2: "World?", 3: "Yes" },
 });
-
 
 const StockfishResponseWindow = ({
   isLoading,
