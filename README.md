@@ -5,11 +5,12 @@ Copenhagen.
 
 ## Local Development
 
-### Stockfish image
+### Stockfish and Firebase images
 
-To run this project, you **need** to build the complementary image found in the
-[audio-engineer/chess-teacher-stockfish](https://github.com/audio-engineer/chess-teacher-stockfish) repository first.
-Once it's built, a container will automatically be created from that image once the Docker Compose commands down below
+To run this project, you **need** to build the complementary images found in the
+[audio-engineer/chess-teacher-stockfish](https://github.com/audio-engineer/chess-teacher-stockfish) and
+[seletskiy/firebase-emulator](https://github.com/seletskiy/firebase-emulator) repositories first.
+Once they're built, a container will automatically be created from the images once the Docker Compose commands down below
 are run.
 
 ### Running the local development environment
