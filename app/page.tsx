@@ -15,6 +15,8 @@ import Grid from "@mui/material/Unstable_Grid2";
 import CircularProgress from "@mui/material/CircularProgress";
 import Paper from "@mui/material/Paper";
 import type { StockfishResponse } from "@/app/api/stockfish/route";
+import { ref, set } from "firebase/database";
+import { database } from "@/firebase/firebase";
 
 const StockfishResponseWindow = ({
   isLoading,
@@ -65,6 +67,13 @@ const Home: FC = (): ReactElement | null => {
     }
 
     setInput("");
+
+    await set(
+      ref(database, `messages/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}`),
+      {
+        message: input,
+      },
+    );
 
     await fetchData();
   };
