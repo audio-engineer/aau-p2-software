@@ -2,12 +2,12 @@ services:
   server:
     image: mcr.microsoft.com/devcontainers/typescript-node:20
     user: node
-    working_dir: /home/node/app/
+    working_dir: /home/node/$COMPOSE_PROJECT_NAME
     environment:
       - NODE_ENV=development
     tty: true
     volumes:
-      - ./:/home/node/app/
+      - ./:/home/node/$COMPOSE_PROJECT_NAME
     ports:
       - 3000:3000
       - 9229:9229
