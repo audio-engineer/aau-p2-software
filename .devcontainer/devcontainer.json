@@ -1,6 +1,6 @@
 {
-  "name": "app",
-  "workspaceFolder": "/home/node/app/",
+  "name": "${localWorkspaceFolderBasename}",
+  "workspaceFolder": "/home/node/${localWorkspaceFolderBasename}",
   "dockerComposeFile": "../compose.yaml",
   "service": "server",
   "remoteUser": "root",
