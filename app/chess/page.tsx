@@ -3,11 +3,6 @@
 import ChessboardGame from "@/components/chessboard-game";
 import type { ChangeEvent, FC, KeyboardEvent, ReactElement } from "react";
 import { useState } from "react";
-import AppBar from "@mui/material/AppBar";
-import IconButton from "@mui/material/IconButton";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
@@ -16,7 +11,9 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Paper from "@mui/material/Paper";
 import type { StockfishResponse } from "@/app/api/stockfish/route";
 import { ref, set } from "firebase/database";
-import { database } from "@/firebase/firebase";
+import { auth, database } from "@/firebase/firebase";
+import { redirect } from "next/navigation";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const StockfishResponseWindow: FC = ({
   isLoading,
@@ -33,6 +30,11 @@ const StockfishResponseWindow: FC = ({
 };
 
 const Chess: FC = (): ReactElement | null => {
+  const [user] = useAuthState(auth);
+  if (!user) {
+    redirect("/");
+  }
+
   const [isLoading, setIsLoading] = useState(false);
   const [stockfishResponse, setStockfishResponse] = useState(
     "Hello, this is Stockfish. Type a valid UCI command and press Enter.",
@@ -80,22 +82,6 @@ const Chess: FC = (): ReactElement | null => {
 
   return (
     <main className="flex min-h-screen items-center justify-around">
-      <AppBar>
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            ChessTeacher
-          </Typography>
-          <IconButton
-            size="large"
-            aria-label="account of current user"
-            aria-controls="menu-appbar"
-            aria-haspopup="true"
-            color="inherit"
-          >
-            <AccountCircle />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
       <Container>
         <Grid container>
           <Grid xs={6}>
