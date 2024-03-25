@@ -14,6 +14,7 @@ services:
       - 9230:9230
   firebase:
     image: audio-engineer/chess-teacher-firebase:latest
+    build: https://github.com/audio-engineer/chess-teacher-firebase.git
     ports:
       - 4000:4000
       - 4400:4400
@@ -22,5 +23,6 @@ services:
       - 9099:9099
   stockfish:
     image: audio-engineer/chess-teacher-stockfish:latest
+    build: https://github.com/audio-engineer/chess-teacher-stockfish.git
     ports:
       - 8000:8000

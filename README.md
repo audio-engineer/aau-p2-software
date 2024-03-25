@@ -8,18 +8,7 @@ Copenhagen.
 Copy [`.env.local.sample`](./.env.local.sample) into `.env.local` and [`.env.sample`](./.env.sample) into `.env`, and
 add the credentials obtained from the Firebase project admin to it.
 
-### Stockfish image
-
-To run this project, you **need** to build the complementary image found in the
-[audio-engineer/chess-teacher-stockfish](https://github.com/audio-engineer/chess-teacher-stockfish) repository first.
-Once it's built, a container will automatically be created from that image once the Docker Compose commands down below
-are run.
-
-### Firebase image
-
-You will also **need** to build the complementary `chess-teacher-firebase` image found in the
-[audio-engineer/chess-teacher-firebase](https://github.com/audio-engineer/chess-teacher-firebase) repository.
-Its container will also be automatically created from the image once the Docker Compose commands down below are run.
+### Firebase Emulators
 
 The Firebase Emulator Suite UI can be accessed at [localhost:4000](http://localhost:4000/).
 
