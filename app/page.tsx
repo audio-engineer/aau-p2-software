@@ -69,7 +69,7 @@ const Home: FC = (): ReactElement | null => {
     setInput("");
 
     await set(
-      ref(database, `messages/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}`),
+      ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/chat`),
       {
         message: input,
       },
