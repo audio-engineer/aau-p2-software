@@ -43,8 +43,8 @@ npm run dev
 
 The front end is now accessible at [localhost:3000](http://localhost:3000/).
 
-When code is pushed to the remote repository, the [Prettier](./.github/workflows/prettier.yml)
-and [ESLint](./.github/workflows/eslint.yml) actions are run.
+When code is pushed to the remote repository, the
+[Formatting And Linting](./.github/workflows/formatting-and-linting.yml) workflow is run.
 Therefore, check your code for errors before committing and pushing by running the tools in the `server` container
 first:
 

@@ -18,7 +18,7 @@ import type { StockfishResponse } from "@/app/api/stockfish/route";
 import { ref, set } from "firebase/database";
 import { database } from "@/firebase/firebase";
 
-const StockfishResponseWindow = ({
+const StockfishResponseWindow: FC = ({
   isLoading,
   stockfishResponse,
 }: {
