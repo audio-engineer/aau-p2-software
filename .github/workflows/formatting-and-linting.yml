@@ -1,0 +1,30 @@
+name: Formatting And Linting
+on: pull_request
+jobs:
+  formatting-and-linting:
+    name: Formatting And Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set Up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install Packages
+        run: npm ci
+      - name: Run ESLint
+        continue-on-error: true
+        run: npm run lint:ci
+      - name: Post ESLint Results
+        continue-on-error: true
+        uses: ataylorme/eslint-annotate-action@v2
+        with:
+          report-json: "eslint-report.json"
+      - name: Run Prettier
+        continue-on-error: true
+        uses: creyD/prettier_action@v4.3
+        with:
+          dry: True
+          prettier_options: "-c **/*.{js,cjs,mjs,jsx,ts,tsx,json,html,css,md,yaml}"

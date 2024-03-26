@@ -8,6 +8,7 @@
     "build": "node_modules/.bin/next build",
     "start": "node_modules/.bin/next start",
     "lint": "node_modules/.bin/next lint",
+    "lint:ci": "eslint -o eslint-report.json -f json .",
     "prettier": "prettier -c **/*.{js,cjs,mjs,jsx,ts,tsx,json,html,css,md,yaml}",
     "postinstall": "patch-package"
   },
