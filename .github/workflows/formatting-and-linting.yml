@@ -23,8 +23,4 @@ jobs:
         with:
           report-json: "eslint-report.json"
       - name: Run Prettier
-        continue-on-error: true
-        uses: creyD/prettier_action@v4.3
-        with:
-          dry: True
-          prettier_options: "-c **/*.{js,cjs,mjs,jsx,ts,tsx,json,html,css,md,yaml}"
+        run: npm run prettier
