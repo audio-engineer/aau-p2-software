@@ -1,17 +1,14 @@
-"use client";
-
 import type { FC, ReactElement } from "react";
-import Lobby from "@/components/lobby";
-import HomePage from "@/components/home-page";
-import Loader from "@/components/loader";
+import SignInButton from "@/components/sign-in-button";
+import ToolbarMenu from "@/components/toolbar-menu";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/firebase/firebase";
 
-const Home: FC = (): ReactElement | null => {
+const ToolbarDisplay: FC = (): ReactElement | null => {
   const [user, loading, error] = useAuthState(auth);
 
   if (loading) {
-    return <Loader />;
+    return <></>;
   }
 
   if (error) {
@@ -19,10 +16,10 @@ const Home: FC = (): ReactElement | null => {
   }
 
   if (!user) {
-    return <HomePage />;
+    return <SignInButton />;
   }
 
-  return <Lobby />;
+  return <ToolbarMenu />;
 };
 
-export default Home;
+export default ToolbarDisplay;

@@ -59,7 +59,7 @@ const ChessboardGame: FC = (): ReactElement | null => {
       // eslint-disable-next-line
       (snapshot) => {
         const data = snapshot.val() as snapshotData | null | undefined;
-        if (data !== null && data !== undefined) {
+        if (null !== data && data !== undefined) {
           makeAMove(data.move);
         }
       },

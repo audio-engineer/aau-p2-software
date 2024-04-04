@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
-import "./globals.css";
 import type { FC, ReactNode } from "react";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
-
-const inter = Roboto({ subsets: ["latin"], weight: "500" });
+import MainContainer from "@/components/main-container";
+import theme from "@/app/theme";
+import ThemeProvider from "@mui/material/styles/ThemeProvider";
+import { CssBaseline } from "@mui/material";
 
 export const metadata: Metadata = {
   title: "ChessTeacher",
   description: "Next-gen Online Chess Instructor",
 };
 
-interface Children {
+export interface Children {
   readonly children: ReactNode;
 }
 
@@ -19,8 +19,13 @@ interface Children {
 const RootLayout: FC<Children> = ({ children }: Readonly<Children>) => {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <AppRouterCacheProvider>{children}</AppRouterCacheProvider>
+      <body>
+        <AppRouterCacheProvider>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <MainContainer>{children}</MainContainer>
+          </ThemeProvider>
+        </AppRouterCacheProvider>
       </body>
     </html>
   );

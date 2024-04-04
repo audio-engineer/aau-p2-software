@@ -12,10 +12,12 @@ export interface BestMove {
   Mate: null;
 }
 
-// TODO Due to issues with finding the correct return type
-// eslint-disable-next-line
-export const GET = async () => {
-  const response = await fetch("http://stockfish:8000");
+export const POST = async (request: Request): Promise<Response> => {
+  const response = await fetch("http://stockfish:8000/evaluate-position", {
+    method: "POST",
+    body: (await request.json()) as string,
+  });
+
   const responseJson = (await response.json()) as StockfishResponse;
 
   return Response.json({ ...responseJson });
