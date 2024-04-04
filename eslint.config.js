@@ -34,6 +34,28 @@ export default tseslint.config(
           format: ["camelCase", "UPPER_CASE", "StrictPascalCase"],
         },
       ],
+      "@typescript-eslint/prefer-readonly-parameter-types": [
+        "error",
+        {
+          allow: [
+            "$",
+            {
+              from: "package",
+              package: "@firebase/auth",
+              name: ["User"],
+            },
+            {
+              from: "package",
+              package: "react",
+              name: ["MouseEvent", "ReactNode"],
+            },
+            {
+              from: "lib",
+              name: ["Request"],
+            },
+          ],
+        },
+      ],
     },
   },
   eslintConfigPrettier,

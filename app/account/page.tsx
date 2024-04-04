@@ -1,13 +1,13 @@
 "use client";
 
 import type { FC, ReactElement } from "react";
-import Lobby from "@/components/lobby";
-import HomePage from "@/components/home-page";
+import { redirect } from "next/navigation";
 import Loader from "@/components/loader";
-import { useAuthState } from "react-firebase-hooks/auth";
+import AccountPage from "@/components/account-page";
 import { auth } from "@/firebase/firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 
-const Home: FC = (): ReactElement | null => {
+const Account: FC = (): ReactElement | null => {
   const [user, loading, error] = useAuthState(auth);
 
   if (loading) {
@@ -19,10 +19,10 @@ const Home: FC = (): ReactElement | null => {
   }
 
   if (!user) {
-    return <HomePage />;
+    redirect("/");
   }
 
-  return <Lobby />;
+  return <AccountPage user={user} />;
 };
 
-export default Home;
+export default Account;
