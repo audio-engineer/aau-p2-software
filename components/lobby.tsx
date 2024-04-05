@@ -23,7 +23,7 @@ const columns: GridColDef[] = [
     width: 150,
     flex: 1,
     renderCell: (): ReactNode => {
-      return <Button>Join</Button>;
+      return <Button href="/game">Join</Button>;
     },
   },
 ];

@@ -41,13 +41,18 @@ export default tseslint.config(
             "$",
             {
               from: "package",
+              package: "@chatscope/use-chat",
+              name: ["User"],
+            },
+            {
+              from: "package",
               package: "@firebase/auth",
               name: ["User"],
             },
             {
               from: "package",
               package: "react",
-              name: ["MouseEvent", "ReactNode"],
+              name: ["ChangeEvent", "MouseEvent", "ReactNode"],
             },
             {
               from: "lib",
