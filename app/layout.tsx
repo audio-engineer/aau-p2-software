@@ -3,8 +3,8 @@ import type { FC, ReactNode } from "react";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
 import MainContainer from "@/components/main-container";
 import theme from "@/app/theme";
-import ThemeProvider from "@mui/material/styles/ThemeProvider";
-import { CssBaseline } from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
 
 export const metadata: Metadata = {
   title: "ChessTeacher",

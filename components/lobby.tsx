@@ -4,6 +4,8 @@ import { DataGrid } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import type { User } from "@firebase/auth";
 
 const rows: GridRowsProp = [
   { id: 1, givenName: "Martin", surname: "Kedmenec", rating: 800 },
@@ -28,9 +30,24 @@ const columns: GridColDef[] = [
   },
 ];
 
-const Lobby: FC = (): ReactElement | null => {
+interface LobbyProperties {
+  readonly user: User | null;
+}
+
+const Lobby: FC<LobbyProperties> = ({
+  user,
+}: LobbyProperties): ReactElement | null => {
   return (
-    <Paper sx={{ display: "flex", height: "80%", width: "100%", p: 4 }}>
+    <Paper
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "80%",
+        width: "100%",
+        p: 4,
+      }}
+    >
+      <Typography variant="h4">Welcome back, {user?.displayName}!</Typography>
       <Box sx={{ height: "100%", width: "100%" }}>
         <DataGrid rows={rows} columns={columns} />
       </Box>

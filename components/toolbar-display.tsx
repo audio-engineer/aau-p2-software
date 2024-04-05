@@ -1,21 +1,17 @@
 import type { FC, ReactElement } from "react";
+import { useContext } from "react";
 import SignInButton from "@/components/sign-in-button";
 import ToolbarMenu from "@/components/toolbar-menu";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "@/firebase/firebase";
+import AuthenticationContext from "@/app/authentication-context";
 
 const ToolbarDisplay: FC = (): ReactElement | null => {
-  const [user, loading, error] = useAuthState(auth);
+  const { isLoading, isAuthenticated } = useContext(AuthenticationContext);
 
-  if (loading) {
+  if (isLoading) {
     return <></>;
   }
 
-  if (error) {
-    console.error(error);
-  }
-
-  if (!user) {
+  if (!isAuthenticated) {
     return <SignInButton />;
   }
 

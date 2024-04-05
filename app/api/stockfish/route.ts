@@ -1,24 +1,55 @@
-export interface StockfishResponse {
-  data: Data;
+export interface DataResponse<A> {
+  data: A;
 }
 
-export interface Data {
-  "best-move": BestMove[];
+export interface Evaluation {
+  type: string;
+  value: number;
 }
 
-export interface BestMove {
-  Move: string;
-  Centipawn: number;
-  Mate: null;
+export interface TopMove {
+  move: string;
+  centipawn: number | null;
+  mate: number | null;
+  time: string;
+  nodes: string;
+  multiPvLine: string;
+  nodesPerSecond: string;
+  selectiveDepth: string;
+  wdl: string;
+}
+
+export interface EvaluatePositionResponse {
+  evaluation: Evaluation;
+  wdlStats: number[];
+  topThreeMoves: TopMove[];
+}
+
+export interface StockfishMessageResponse {
+  readonly message: string;
 }
 
 export const POST = async (request: Request): Promise<Response> => {
   const response = await fetch("http://stockfish:8000/evaluate-position", {
     method: "POST",
-    body: (await request.json()) as string,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(await request.json()),
   });
 
-  const responseJson = (await response.json()) as StockfishResponse;
+  const responseJson =
+    (await response.json()) as DataResponse<EvaluatePositionResponse>;
 
-  return Response.json({ ...responseJson });
+  const firstMoveIndex = 0;
+  const secondMoveIndex = 1;
+  const thirdMoveIndex = 2;
+
+  const firstMove = responseJson.data.topThreeMoves[firstMoveIndex].move;
+  const secondMove = responseJson.data.topThreeMoves[secondMoveIndex].move;
+  const thirdMove = responseJson.data.topThreeMoves[thirdMoveIndex].move;
+
+  const message = `The three best moves from here would be ${firstMove}, ${secondMove} or ${thirdMove}!`;
+
+  return Response.json({
+    message,
+  });
 };

@@ -61,6 +61,12 @@ export default tseslint.config(
           ],
         },
       ],
+      "@typescript-eslint/no-restricted-imports": [
+        "error",
+        {
+          patterns: ["@mui/*/*/*"],
+        },
+      ],
     },
   },
   eslintConfigPrettier,
