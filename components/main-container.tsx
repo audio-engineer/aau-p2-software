@@ -28,7 +28,7 @@ const MainContainer: FC<Children> = ({
           </Typography>
           <Box sx={{ flexGrow: 1 }}>
             <Button
-              sx={{ my: 2, color: "white", display: "block" }}
+              sx={{ my: 2, color: "white", width: "fit-content" }}
               href="/about"
             >
               About

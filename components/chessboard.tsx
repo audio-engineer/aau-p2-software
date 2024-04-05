@@ -2,11 +2,11 @@ import type { FC, ReactElement } from "react";
 import { useEffect, useState } from "react";
 import type { Square } from "chess.js";
 import { Chess, type Move } from "chess.js";
-import { Chessboard } from "react-chessboard";
-import { ref, set, onValue } from "firebase/database";
+import { Chessboard as ReactChessboard } from "react-chessboard";
+import { onValue, ref, set } from "firebase/database";
 import { database } from "@/firebase/firebase";
 
-const ChessboardGame: FC = (): ReactElement | null => {
+const Chessboard: FC = (): ReactElement | null => {
   const [game, setGame] = useState<Chess>(new Chess());
 
   const makeAMove = (move: Readonly<Move> | string): Move | null => {
@@ -67,15 +67,15 @@ const ChessboardGame: FC = (): ReactElement | null => {
   }, []);
 
   return (
-    <div>
-      <Chessboard
+    <>
+      <ReactChessboard
         id="chessboard"
-        boardWidth={560}
+        boardWidth={570}
         position={game.fen()}
         onPieceDrop={onDrop}
       />
-    </div>
+    </>
   );
 };
 
-export default ChessboardGame;
+export default Chessboard;
