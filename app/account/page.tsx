@@ -1,24 +1,22 @@
 "use client";
 
 import type { FC, ReactElement } from "react";
-import { redirect } from "next/navigation";
+import { useContext } from "react";
 import Loader from "@/components/loader";
 import AccountPage from "@/components/account-page";
-import { auth } from "@/firebase/firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
+import AuthenticationContext from "@/app/authentication-context";
+import { redirect } from "next/navigation";
 
 const Account: FC = (): ReactElement | null => {
-  const [user, loading, error] = useAuthState(auth);
+  const { isLoading, isAuthenticated, user } = useContext(
+    AuthenticationContext,
+  );
 
-  if (loading) {
+  if (isLoading) {
     return <Loader />;
   }
 
-  if (error) {
-    console.error(error);
-  }
-
-  if (!user) {
+  if (!isAuthenticated) {
     redirect("/");
   }
 

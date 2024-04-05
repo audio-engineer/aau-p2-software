@@ -5,6 +5,7 @@ import { Chess, type Move } from "chess.js";
 import { Chessboard as ReactChessboard } from "react-chessboard";
 import { onValue, ref, set } from "firebase/database";
 import { database } from "@/firebase/firebase";
+import type { StockfishMessageResponse } from "@/app/api/stockfish/route";
 
 const Chessboard: FC = (): ReactElement | null => {
   const [game, setGame] = useState<Chess>(new Chess());
@@ -23,11 +24,25 @@ const Chessboard: FC = (): ReactElement | null => {
   };
 
   const saveState = async (move: Readonly<Move>): Promise<void> => {
+    const response = await fetch("/api/stockfish", {
+      method: "POST",
+      body: JSON.stringify({ fen: game.fen() }),
+    });
+
+    const responseJson = (await response.json()) as StockfishMessageResponse;
+
     await set(
       ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/state`),
       {
         move: move,
         position: game.fen(),
+      },
+    );
+
+    await set(
+      ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/chat`),
+      {
+        stockfish: responseJson.message,
       },
     );
   };
@@ -67,14 +82,11 @@ const Chessboard: FC = (): ReactElement | null => {
   }, []);
 
   return (
-    <>
-      <ReactChessboard
-        id="chessboard"
-        boardWidth={570}
-        position={game.fen()}
-        onPieceDrop={onDrop}
-      />
-    </>
+    <ReactChessboard
+      id="chessboard"
+      position={game.fen()}
+      onPieceDrop={onDrop}
+    />
   );
 };
 

@@ -20,7 +20,9 @@ import {
   MessageStatus,
   useChat,
 } from "@chatscope/use-chat";
-import { userModel } from "@/components/chat";
+import { stockfishModel, userModel } from "@/components/chat";
+import { onValue, ref } from "firebase/database";
+import { database } from "@/firebase/firebase";
 
 interface ChatContainerProperties {
   readonly user: User;
@@ -110,9 +112,38 @@ const ChatContainer: FC<ChatContainerProperties> = ({
     return undefined;
   }, [activeConversation, getUser]);
 
+  useEffect(() => {
+    onValue(
+      ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/chat`),
+      // Due to parameter not being readonly
+      // eslint-disable-next-line
+      (snapshot) => {
+        const data = snapshot.val() as { stockfish: string } | null;
+
+        if (null !== data) {
+          sendMessage({
+            message: new ChatMessage(
+              new ChatMessage({
+                id: "",
+                content:
+                  data.stockfish as unknown as MessageContent<MessageContentType.TextPlain>,
+                contentType: MessageContentType.TextHtml,
+                senderId: stockfishModel.name,
+                direction: MessageDirection.Incoming,
+                status: MessageStatus.Sent,
+              }),
+            ),
+            conversationId: "123",
+            senderId: "1",
+          });
+        }
+      },
+    );
+  }, []);
+
   return (
-    <MainContainer style={{ height: "100%" }}>
-      <ChatscopeChatContainer style={{ height: "100%" }}>
+    <MainContainer>
+      <ChatscopeChatContainer>
         {activeConversation && (
           <ConversationHeader>
             {currentUserAvatar}
