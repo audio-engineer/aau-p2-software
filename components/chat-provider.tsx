@@ -1,5 +1,5 @@
 import type { FC, ReactElement } from "react";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import type {
   IStorage,
@@ -97,20 +97,23 @@ const ChatProvider: FC<ChatProviderProps> = ({
 }: ChatProviderProps): ReactElement | null => {
   const { user } = useContext(AuthenticationContext);
 
-  if (null == user?.email) {
-    return null;
-  }
-
-  const userUser = new User({
-    id: user.email,
-    presence: new Presence({ status: UserStatus.Available, description: "" }),
-    firstName: "",
-    lastName: "",
-    username: user.email,
-    email: user.email,
-    avatar: "",
-    bio: "",
-  });
+  const userUser = useMemo(
+    () =>
+      new User({
+        id: user?.email ?? "",
+        presence: new Presence({
+          status: UserStatus.Available,
+          description: "",
+        }),
+        firstName: "",
+        lastName: "",
+        username: user?.email ?? "",
+        email: user?.email ?? "",
+        avatar: "",
+        bio: "",
+      }),
+    [user?.email],
+  );
 
   return (
     <ChatscopeChatProvider

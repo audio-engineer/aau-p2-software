@@ -56,7 +56,11 @@ const Chessboard: FC<ChessboardProps> = ({
     }
 
     setGame(gameCopy);
-    void saveState(result);
+
+    saveState(result).catch((error: unknown) => {
+      console.error(error);
+    });
+
     onLegalMove(game.fen());
 
     return true;
