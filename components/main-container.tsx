@@ -61,7 +61,7 @@ const MainContainer: FC<Children> = ({
         console.error("Authentication error", error);
       },
     );
-  }, [auth]);
+  }, []);
 
   return (
     <ColorModeContext.Provider value={colorModeMemo}>
