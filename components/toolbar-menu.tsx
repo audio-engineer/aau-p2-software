@@ -5,7 +5,6 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import { signOut } from "@/firebase/auth";
-import { asyncEventHandler } from "@/utils/utils";
 
 const ToolbarMenu: FC = (): ReactElement | null => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -18,11 +17,13 @@ const ToolbarMenu: FC = (): ReactElement | null => {
     setAnchorEl(null);
   };
 
-  const handleSignOut = asyncEventHandler(async (): Promise<void> => {
+  const handleSignOut = (): void => {
     handleClose();
 
-    await signOut();
-  });
+    signOut().catch((error: unknown) => {
+      console.error(error);
+    });
+  };
 
   return (
     <div>

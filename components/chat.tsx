@@ -23,7 +23,6 @@ import {
 import type { StockfishMessageResponse } from "@/app/api/stockfish/route";
 import { onValue, ref, set } from "firebase/database";
 import { database } from "@/firebase/firebase";
-import { asyncEventHandler } from "@/utils/utils";
 
 interface ChatSnapshot {
   readonly message: ChatMessage<MessageContentType>;
@@ -57,14 +56,9 @@ const Chat: FC<ChatProps> = ({
   useEffect(() => {
     return () => {
       setCurrentUser(user);
-    };
-  }, [user, setCurrentUser]);
-
-  useEffect(() => {
-    return () => {
       setActiveConversation("123");
     };
-  }, [setActiveConversation]);
+  }, [setActiveConversation, setCurrentUser, user]);
 
   useEffect(() => {
     return onValue(
@@ -135,7 +129,9 @@ const Chat: FC<ChatProps> = ({
       };
     }
 
-    void callStockfish();
+    callStockfish().catch((error: unknown) => {
+      console.error(error);
+    });
 
     return () => {
       return;
@@ -172,26 +168,26 @@ const Chat: FC<ChatProps> = ({
     }
   };
 
-  const onSendHandler = asyncEventHandler(
-    async (text: string): Promise<void> => {
-      const message = new ChatMessage({
-        id: "",
-        content: text as unknown as MessageContent<MessageContentType.TextHtml>,
-        contentType: MessageContentType.TextHtml,
-        senderId: user.id,
-        direction: MessageDirection.Outgoing,
-        status: MessageStatus.Sent,
-        updatedTime: new Date(),
-      });
+  const onSendHandler = (text: string): void => {
+    const message = new ChatMessage({
+      id: "",
+      content: text as unknown as MessageContent<MessageContentType.TextHtml>,
+      contentType: MessageContentType.TextHtml,
+      senderId: user.id,
+      direction: MessageDirection.Outgoing,
+      status: MessageStatus.Sent,
+      updatedTime: new Date(),
+    });
 
-      await set(
-        ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/chat`),
-        {
-          message,
-        },
-      );
-    },
-  );
+    set(
+      ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/chat`),
+      {
+        message,
+      },
+    ).catch((error: unknown) => {
+      console.error(error);
+    });
+  };
 
   const getTypingIndicator = useCallback(() => {
     if (activeConversation) {

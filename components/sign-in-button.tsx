@@ -1,13 +1,14 @@
 import type { FC, ReactElement } from "react";
 import { signInWithGoogle } from "@/firebase/auth";
 import Button from "@mui/material/Button";
-import { asyncEventHandler } from "@/utils/utils";
-
-const handleSignInWithGoogle = asyncEventHandler(async (): Promise<void> => {
-  await signInWithGoogle();
-});
 
 const SignInButton: FC = (): ReactElement | null => {
+  const handleSignInWithGoogle = (): void => {
+    signInWithGoogle().catch((error: unknown) => {
+      console.error(error);
+    });
+  };
+
   return (
     <Button
       variant="contained"

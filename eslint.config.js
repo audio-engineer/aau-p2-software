@@ -4,16 +4,13 @@ import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier";
 import { FlatCompat } from "@eslint/eslintrc";
-import legacyNextESLintRC from "./legacy-next-eslintrc.config.js";
 
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-});
+const compat = new FlatCompat();
 
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.all,
-  ...compat.config(legacyNextESLintRC),
+  ...compat.extends("next/core-web-vitals"),
   {
     ignores: ["*.config.*", ".next/"],
   },
