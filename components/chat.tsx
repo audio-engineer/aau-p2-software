@@ -1,130 +1,267 @@
 import type { FC, ReactElement } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
-import type {
-  IStorage,
-  MessageContent,
-  UpdateState,
-} from "@chatscope/use-chat";
 import {
-  AutoDraft,
-  BasicStorage,
+  Avatar,
+  ChatContainer as ChatscopeChatContainer,
+  ConversationHeader,
+  MainContainer,
+  Message,
+  MessageGroup,
+  MessageInput,
+  MessageList,
+  TypingIndicator,
+} from "@chatscope/chat-ui-kit-react";
+import type { MessageContent, User } from "@chatscope/use-chat";
+import {
   ChatMessage,
-  ChatProvider as ChatscopeChatProvider,
-  Conversation,
-  ConversationRole,
   MessageContentType,
   MessageDirection,
   MessageStatus,
-  Participant,
-  Presence,
-  TypingUsersList,
-  User,
-  UserStatus,
+  useChat,
 } from "@chatscope/use-chat";
-import { nanoid } from "nanoid";
-import { ExampleChatService } from "@/chat/chat-service";
-import ChatContainer from "@/components/chat-container";
+import type { StockfishMessageResponse } from "@/app/api/stockfish/route";
+import { onValue, ref, set } from "firebase/database";
+import { database } from "@/firebase/firebase";
+import { asyncEventHandler } from "@/utils/utils";
 
-const messageIdGenerator = (): string => nanoid();
-const groupIdGenerator = (): string => nanoid();
+interface ChatSnapshot {
+  readonly message: ChatMessage<MessageContentType>;
+}
 
-const serviceFactory = (
-  storage: Readonly<IStorage>,
-  updateState: UpdateState,
-): ExampleChatService => {
-  return new ExampleChatService(storage, updateState);
-};
+interface ChatProps {
+  readonly user: User;
+  readonly fen: string;
+  readonly legalMoveCount: number;
+}
 
-const stockfishStorage = new BasicStorage({
-  groupIdGenerator,
-  messageIdGenerator,
-});
+const openingMoveWasPlayed = 1;
 
-export const stockfishModel = {
-  name: "Stockfish",
-  avatar:
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbn0p2CQByeW7xrsZPMiNoSogdUks_Um7rEDIGqh4wGQ&s",
-};
+const Chat: FC<ChatProps> = ({
+  user,
+  fen,
+  legalMoveCount,
+}: ChatProps): ReactElement | null => {
+  const {
+    currentMessages,
+    activeConversation,
+    setActiveConversation,
+    sendMessage,
+    currentMessage,
+    setCurrentMessage,
+    setCurrentUser,
+    getUser,
+    sendTyping,
+  } = useChat();
 
-export const userModel = {
-  name: "User",
-  avatar: "",
-};
+  useEffect(() => {
+    return () => {
+      setCurrentUser(user);
+    };
+  }, [user, setCurrentUser]);
 
-const stockfishUser = new User({
-  id: stockfishModel.name,
-  presence: new Presence({ status: UserStatus.Available, description: "" }),
-  firstName: "",
-  lastName: "",
-  username: stockfishModel.name,
-  email: "",
-  avatar: stockfishModel.avatar,
-  bio: "",
-});
+  useEffect(() => {
+    return () => {
+      setActiveConversation("123");
+    };
+  }, []);
 
-const userUser = new User({
-  id: userModel.name,
-  presence: new Presence({ status: UserStatus.Available, description: "" }),
-  firstName: "",
-  lastName: "",
-  username: userModel.name,
-  email: "",
-  avatar: userModel.avatar,
-  bio: "",
-});
+  useEffect(() => {
+    return onValue(
+      ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/chat`),
+      (snapshot) => {
+        if (!snapshot.exists()) {
+          return;
+        }
 
-const conversation = new Conversation({
-  id: "123",
-  participants: [
-    new Participant({
-      id: stockfishModel.name,
-      role: new ConversationRole([]),
-    }),
-    new Participant({
-      id: userModel.name,
-      role: new ConversationRole([]),
-    }),
-  ],
-  unreadCounter: 0,
-  typingUsers: new TypingUsersList({ items: [] }),
-  draft: "",
-});
+        const chatSnapshot = snapshot.val() as ChatSnapshot;
+        const { message } = chatSnapshot;
 
-stockfishStorage.addConversation(conversation);
+        let direction = MessageDirection.Outgoing;
 
-stockfishStorage.addUser(stockfishUser);
-stockfishStorage.addUser(userUser);
+        if (message.senderId !== user.id) {
+          direction = MessageDirection.Incoming;
+        }
 
-const initialMessage =
-  "Hello, this is Stockfish. I will provide you with insightful feedback during the game!";
+        sendMessage({
+          message: new ChatMessage(
+            new ChatMessage({
+              id: "",
+              content: message.content,
+              contentType: message.contentType,
+              senderId: message.senderId,
+              direction,
+              status: message.status,
+            }),
+          ),
+          conversationId: "123",
+          senderId: message.senderId,
+        });
+      },
+    );
+  }, [database]);
 
-stockfishStorage.addMessage(
-  new ChatMessage({
-    id: "",
-    content:
-      initialMessage as unknown as MessageContent<MessageContentType.TextHtml>,
-    contentType: MessageContentType.TextHtml,
-    senderId: stockfishModel.name,
-    direction: MessageDirection.Incoming,
-    status: MessageStatus.Sent,
-  }),
-  "123",
-);
+  const callStockfish = async (): Promise<void> => {
+    const response = await fetch("/api/stockfish", {
+      method: "POST",
+      body: JSON.stringify({ fen }),
+    });
 
-const Chat: FC = (): ReactElement | null => {
+    const responseJson = (await response.json()) as StockfishMessageResponse;
+
+    const message = new ChatMessage({
+      id: "",
+      content:
+        responseJson.message as unknown as MessageContent<MessageContentType.TextPlain>,
+      contentType: MessageContentType.TextPlain,
+      senderId: "Stockfish",
+      direction: MessageDirection.Incoming,
+      status: MessageStatus.Sent,
+      updatedTime: new Date(),
+    });
+
+    await set(
+      ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/chat`),
+      {
+        message,
+      },
+    );
+  };
+
+  useEffect(() => {
+    if (legalMoveCount < openingMoveWasPlayed) {
+      return () => {
+        return;
+      };
+    }
+
+    void callStockfish();
+
+    return () => {
+      return;
+    };
+  }, [legalMoveCount]);
+
+  const [currentUserAvatar, currentUserName] = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    if (activeConversation && 0 < activeConversation.participants.length) {
+      const activeUser = getUser(activeConversation.participants["0"].id);
+
+      if (activeUser) {
+        return [<Avatar src={activeUser.avatar} />, activeUser.username];
+      }
+    }
+
+    return [undefined, undefined];
+  }, [activeConversation, getUser]);
+
+  const onChangeHandler = (textContent: string): void => {
+    setCurrentMessage(textContent);
+
+    if (activeConversation) {
+      sendTyping({
+        conversationId: activeConversation.id,
+        isTyping: true,
+        userId: user.id,
+        content: "",
+        throttle: true,
+      });
+    }
+  };
+
+  const onSendHandler = asyncEventHandler(
+    async (text: string): Promise<void> => {
+      const message = new ChatMessage({
+        id: "",
+        content: text as unknown as MessageContent<MessageContentType.TextHtml>,
+        contentType: MessageContentType.TextHtml,
+        senderId: user.id,
+        direction: MessageDirection.Outgoing,
+        status: MessageStatus.Sent,
+        updatedTime: new Date(),
+      });
+
+      await set(
+        ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/chat`),
+        {
+          message,
+        },
+      );
+    },
+  );
+
+  const getTypingIndicator = useCallback(() => {
+    if (activeConversation) {
+      const { typingUsers } = activeConversation;
+
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+      if (0 < typingUsers.length) {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        const typingUserId = typingUsers.items[0].userId;
+
+        if (activeConversation.participantExists(typingUserId)) {
+          const typingUser = getUser(typingUserId);
+
+          if (typingUser) {
+            return (
+              <TypingIndicator content={`${typingUser.username} is typing`} />
+            );
+          }
+        }
+      }
+    }
+
+    return undefined;
+  }, [activeConversation, getUser]);
+
   return (
-    <ChatscopeChatProvider
-      serviceFactory={serviceFactory}
-      storage={stockfishStorage}
-      config={{
-        typingThrottleTime: 250,
-        typingDebounceTime: 900,
-        debounceTyping: true,
-        autoDraft: AutoDraft.Save | AutoDraft.Restore,
-      }}
-    >
-      <ChatContainer user={userUser} />
-    </ChatscopeChatProvider>
+    <MainContainer>
+      <ChatscopeChatContainer>
+        {activeConversation && (
+          <ConversationHeader>
+            {currentUserAvatar}
+            <ConversationHeader.Content userName={currentUserName} />
+          </ConversationHeader>
+        )}
+        {/* TODO Move MessageList to separate FC and make currentMessages
+        parameter read only */}
+        {/* eslint-disable */}
+        <MessageList typingIndicator={getTypingIndicator()}>
+          {activeConversation &&
+            currentMessages.map((messageGroup) => (
+              <MessageGroup
+                key={messageGroup.id}
+                direction={messageGroup.direction}
+              >
+                <MessageGroup.Messages>
+                  {messageGroup.messages.map(
+                    (chatMessage: ChatMessage<MessageContentType>) => (
+                      <Message
+                        key={chatMessage.id}
+                        model={{
+                          type: "html",
+                          payload: chatMessage.content,
+                          direction: chatMessage.direction,
+                          position: "normal",
+                        }}
+                      />
+                    ),
+                  )}
+                </MessageGroup.Messages>
+              </MessageGroup>
+            ))}
+        </MessageList>
+        {/*eslint-disable*/}
+        <MessageInput
+          value={currentMessage}
+          onChange={onChangeHandler}
+          onSend={onSendHandler}
+          disabled={!activeConversation}
+          attachButton={false}
+          placeholder="Type here..."
+        />
+      </ChatscopeChatContainer>
+    </MainContainer>
   );
 };
 

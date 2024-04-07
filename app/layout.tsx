@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import type { FC, ReactNode } from "react";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
 import MainContainer from "@/components/main-container";
-import theme from "@/app/theme";
-import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import ErrorHandler from "@/utils/error-handler";
 
 export const metadata: Metadata = {
   title: "ChessTeacher",
@@ -21,10 +20,9 @@ const RootLayout: FC<Children> = ({ children }: Readonly<Children>) => {
     <html lang="en">
       <body>
         <AppRouterCacheProvider>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <MainContainer>{children}</MainContainer>
-          </ThemeProvider>
+          <ErrorHandler />
+          <CssBaseline />
+          <MainContainer>{children}</MainContainer>
         </AppRouterCacheProvider>
       </body>
     </html>

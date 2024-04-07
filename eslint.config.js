@@ -13,6 +13,7 @@ export default tseslint.config(
       "@next/next": nextPlugin,
     },
     rules: {
+      ...nextPlugin.configs.recommended.rules,
       ...nextPlugin.configs["core-web-vitals"].rules,
     },
   },
@@ -48,6 +49,11 @@ export default tseslint.config(
               from: "package",
               package: "@firebase/auth",
               name: ["User"],
+            },
+            {
+              from: "package",
+              package: "firebase/database",
+              name: ["DataSnapshot"],
             },
             {
               from: "package",

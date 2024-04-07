@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const asyncEventHandler = <A extends any[]>(
   eventHandler: (...args: A) => Promise<void>,
 ): ((...args: A) => void) => {
@@ -12,3 +12,4 @@ export const asyncEventHandler = <A extends any[]>(
     }
   };
 };
+/* eslint-enable */
