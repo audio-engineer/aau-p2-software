@@ -47,7 +47,17 @@ export const POST = async (request: Request): Promise<Response> => {
   const secondMove = responseJson.data.topThreeMoves[secondMoveIndex].move;
   const thirdMove = responseJson.data.topThreeMoves[thirdMoveIndex].move;
 
-  const message = `The three best moves from here would be ${firstMove}, ${secondMove} or ${thirdMove}!`;
+  const messages = [
+    "The three best moves from here would be",
+    "Consider",
+    "Try",
+    "Go for",
+    "If I were you, I would try",
+  ];
+
+  const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+
+  const message = `${randomMessage} ${firstMove}, ${secondMove} or ${thirdMove}!`;
 
   return Response.json({
     message,

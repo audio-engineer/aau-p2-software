@@ -47,7 +47,7 @@ interface EventHandlers {
   [key: string]: any;
 }
 
-export class ExampleChatService implements IChatService {
+export class ChatService implements IChatService {
   storage?: IStorage;
   updateState: UpdateState;
 
