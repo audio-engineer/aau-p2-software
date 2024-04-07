@@ -64,7 +64,7 @@ const Chat: FC<ChatProps> = ({
     return () => {
       setActiveConversation("123");
     };
-  }, []);
+  }, [setActiveConversation]);
 
   useEffect(() => {
     return onValue(
@@ -99,9 +99,9 @@ const Chat: FC<ChatProps> = ({
         });
       },
     );
-  }, [database]);
+  }, [sendMessage, user.id]);
 
-  const callStockfish = async (): Promise<void> => {
+  const callStockfish = useCallback(async (): Promise<void> => {
     const response = await fetch("/api/stockfish", {
       method: "POST",
       body: JSON.stringify({ fen }),
@@ -126,7 +126,7 @@ const Chat: FC<ChatProps> = ({
         message,
       },
     );
-  };
+  }, [fen]);
 
   useEffect(() => {
     if (legalMoveCount < openingMoveWasPlayed) {
@@ -140,7 +140,7 @@ const Chat: FC<ChatProps> = ({
     return () => {
       return;
     };
-  }, [legalMoveCount]);
+  }, [callStockfish, legalMoveCount]);
 
   const [currentUserAvatar, currentUserName] = useMemo(() => {
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
@@ -148,7 +148,10 @@ const Chat: FC<ChatProps> = ({
       const activeUser = getUser(activeConversation.participants["0"].id);
 
       if (activeUser) {
-        return [<Avatar src={activeUser.avatar} />, activeUser.username];
+        return [
+          <Avatar key={1} src={activeUser.avatar} />,
+          activeUser.username,
+        ];
       }
     }
 

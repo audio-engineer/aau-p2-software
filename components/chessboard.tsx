@@ -1,7 +1,7 @@
 import type { FC, ReactElement } from "react";
-import { useEffect, useState } from "react";
-import type { Square } from "chess.js";
-import { Chess, type Move } from "chess.js";
+import { useCallback, useEffect, useState } from "react";
+import type { Move, Square } from "chess.js";
+import { Chess } from "chess.js";
 import { Chessboard as ReactChessboard } from "react-chessboard";
 import { onValue, ref, set } from "firebase/database";
 import { database } from "@/firebase/firebase";
@@ -19,16 +19,19 @@ const Chessboard: FC<ChessboardProps> = ({
 }: ChessboardProps): ReactElement | null => {
   const [game, setGame] = useState<Chess>(new Chess());
 
-  const makeAMove = (
-    move: Readonly<Move> | string,
-  ): { result: Move | null; gameCopy: Chess } => {
-    const gameCopy = Object.assign(
-      Object.create(Object.getPrototypeOf(game) as object),
-      game,
-    ) as Chess;
+  const makeAMove = useCallback(
+    (
+      move: Readonly<Move> | string,
+    ): { result: Move | null; gameCopy: Chess } => {
+      const gameCopy = Object.assign(
+        Object.create(Object.getPrototypeOf(game) as object),
+        game,
+      ) as Chess;
 
-    return { result: gameCopy.move(move), gameCopy };
-  };
+      return { result: gameCopy.move(move), gameCopy };
+    },
+    [game],
+  );
 
   // TODO Figure out how to send FEN to realtime database async
   const saveState = async (move: Readonly<Move>): Promise<void> => {
@@ -72,10 +75,11 @@ const Chessboard: FC<ChessboardProps> = ({
         const { gameCopy } = makeAMove(stateSnapshot.move);
 
         setGame(gameCopy);
-        onLegalMove(game.fen());
+        // TODO Check if onLegalMove needs to be called here
+        // onLegalMove(game.fen());
       },
     );
-  }, [database]);
+  }, [game, makeAMove, onLegalMove]);
 
   return (
     <ReactChessboard
