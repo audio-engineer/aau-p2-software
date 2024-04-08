@@ -1,5 +1,5 @@
 import type { FC, ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Move, Square } from "chess.js";
 import { Chess } from "chess.js";
 import { Chessboard as ReactChessboard } from "react-chessboard";
@@ -7,64 +7,68 @@ import { onValue, ref, set } from "firebase/database";
 import { database } from "@/firebase/firebase";
 
 interface StateSnapshot {
-  move: Move;
+  readonly move: Move;
+  readonly fen: string;
 }
 
 interface ChessboardProps {
+  readonly color: string;
   readonly onLegalMove: (fen: string) => void;
 }
 
+const saveState = async (move: Readonly<Move>, fen: string): Promise<void> => {
+  await set(
+    ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/state`),
+    {
+      move,
+      fen,
+    },
+  );
+};
+
 const Chessboard: FC<ChessboardProps> = ({
+  color,
   onLegalMove,
 }: ChessboardProps): ReactElement | null => {
-  const [game, setGame] = useState<Chess>(new Chess());
+  const [game, setGame] = useState<{ chess: Chess; move: Move | undefined }>({
+    chess: new Chess(),
+    move: undefined,
+  });
 
-  const makeAMove = useCallback(
-    (
-      move: Readonly<Move> | string,
-    ): { result: Move | null; gameCopy: Chess } => {
-      const gameCopy = Object.assign(
-        Object.create(Object.getPrototypeOf(game) as object),
-        game,
-      ) as Chess;
+  const makeAMove = (move: Readonly<Move>): Move | null => {
+    const gameCopy = new Chess(game.chess.fen());
 
-      return { result: gameCopy.move(move), gameCopy };
-    },
-    [game],
-  );
+    const result = gameCopy.move(move);
 
-  // TODO Figure out how to send FEN to realtime database async
-  const saveState = async (move: Readonly<Move>): Promise<void> => {
-    await set(
-      ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/state`),
-      {
-        move,
-        position: game.fen(),
-      },
-    );
+    if (!result || color !== result.color) {
+      return null;
+    }
+
+    setGame({ chess: gameCopy, move: result });
+    onLegalMove(gameCopy.fen());
+
+    return result;
   };
 
   const onPieceDrop = (sourceSquare: string, targetSquare: string): boolean => {
-    const { result, gameCopy } = makeAMove({
+    const result = makeAMove({
       from: sourceSquare as Square,
       to: targetSquare as Square,
       promotion: "q",
     });
 
-    if (!result) {
-      return false;
+    return null !== result;
+  };
+
+  useEffect(() => {
+    if (undefined === game.move) {
+      return;
     }
 
-    setGame(gameCopy);
-
-    saveState(result).catch((error: unknown) => {
+    saveState(game.move, game.chess.fen()).catch((error: unknown) => {
       console.error(error);
     });
-
-    onLegalMove(game.fen());
-
-    return true;
-  };
+  }, [game]);
 
   useEffect(() => {
     return onValue(
@@ -76,21 +80,31 @@ const Chessboard: FC<ChessboardProps> = ({
 
         const stateSnapshot = snapshot.val() as StateSnapshot;
 
-        const { gameCopy } = makeAMove(stateSnapshot.move);
+        if (color === stateSnapshot.move.color) {
+          return;
+        }
 
-        setGame(gameCopy);
-        // TODO Check if onLegalMove needs to be called here
-        // onLegalMove(game.fen());
+        const gameCopy = new Chess(stateSnapshot.fen);
+        gameCopy.move(stateSnapshot.move);
+        setGame({ chess: gameCopy, move: stateSnapshot.move });
       },
     );
-  }, [game, makeAMove, onLegalMove]);
+  }, [color]);
+
+  const boardOrientation = useMemo(() => {
+    if ("w" === color) {
+      return "white";
+    }
+
+    return "black";
+  }, [color]);
 
   return (
     <ReactChessboard
       id="chessboard"
-      position={game.fen()}
+      position={game.chess.fen()}
       onPieceDrop={onPieceDrop}
-      boardOrientation="white"
+      boardOrientation={boardOrientation}
     />
   );
 };

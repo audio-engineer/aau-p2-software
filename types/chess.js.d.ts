@@ -80,6 +80,8 @@ declare module "chess.js" {
   }
 
   class Chess {
+    public constructor(fen: string = undefined);
+
     public move(move: Readonly<Move> | string): Move | null;
 
     public moves(): string[];
