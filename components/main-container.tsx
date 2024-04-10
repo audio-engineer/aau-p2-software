@@ -13,6 +13,9 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import ColorModeContext from "@/app/color-mode-context";
 import Navigation from "@/components/navigation";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 const MainContainer: FC<Children> = ({
@@ -70,21 +73,23 @@ const MainContainer: FC<Children> = ({
         <AuthenticationContext.Provider
           value={{ isLoading, isAuthenticated, user }}
         >
-          <Box>
-            <Navigation />
-            <Box component="main" sx={{ display: "flex", height: "100vh" }}>
-              <Container
-                maxWidth="xl"
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                {children}
-              </Container>
+          <QueryClientProvider client={queryClient}>
+            <Box>
+              <Navigation />
+              <Box component="main" display="flex" height="100vh">
+                <Container
+                  maxWidth="xl"
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  {children}
+                </Container>
+              </Box>
             </Box>
-          </Box>
+          </QueryClientProvider>
         </AuthenticationContext.Provider>
       </ThemeProvider>
     </ColorModeContext.Provider>

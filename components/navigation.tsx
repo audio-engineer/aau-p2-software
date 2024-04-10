@@ -46,13 +46,13 @@ const Navigation: FC = (): ReactElement | null => {
         >
           ChessTeacher
         </Typography>
-        <Box sx={{ flexGrow: 1 }} />
+        <Box flexGrow="1" />
         <Box>
-          <Button sx={{ color: "inherit" }} href="/about">
+          <Button color="inherit" href="/about">
             About
           </Button>
         </Box>
-        <Box sx={{ mx: "1rem", width: { lg: "8rem" } }}>
+        <Box marginX="1rem" width={{ lg: "8rem" }}>
           {theme.palette.mode} mode
           <IconButton
             sx={{ ml: 1, color: "inherit" }}
