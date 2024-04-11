@@ -11,9 +11,11 @@ import { onAuthStateChanged } from "@firebase/auth";
 import { auth } from "@/firebase/firebase";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import ColorModeContext from "@/app/color-mode-context";
+import type { ColorMode } from "@/app/color-mode-context";
+import ColorModeContext, { dark, light } from "@/app/color-mode-context";
 import Navigation from "@/components/navigation";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useLocalStorage } from "usehooks-ts";
 
 const queryClient = new QueryClient();
 
@@ -21,24 +23,34 @@ const queryClient = new QueryClient();
 const MainContainer: FC<Children> = ({
   children,
 }: Readonly<Children>): ReactElement | null => {
-  const [colorMode, setColorMode] = useState<"dark" | "light">("light");
+  const [colorMode, setColorMode] = useState<ColorMode>(light);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [localStorageColorMode, setLocalStorageColorMode] =
+    useLocalStorage<ColorMode>("color-mode", "light");
+
+  useEffect(() => {
+    setColorMode(localStorageColorMode);
+  }, [localStorageColorMode]);
 
   const colorModeMemo = useMemo(
     () => ({
       toggleColorMode: (): void => {
-        setColorMode((prevMode) => {
-          if ("light" === prevMode) {
-            return "dark";
+        setColorMode((previousMode) => {
+          if (light === previousMode) {
+            setLocalStorageColorMode(dark);
+
+            return dark;
           }
 
-          return "light";
+          setLocalStorageColorMode(light);
+
+          return light;
         });
       },
     }),
-    [],
+    [setLocalStorageColorMode],
   );
 
   const themeMemo = useMemo(
@@ -53,7 +65,7 @@ const MainContainer: FC<Children> = ({
 
   useEffect(() => {
     // TODO Memoize auth state
-    onAuthStateChanged(
+    return onAuthStateChanged(
       auth,
       (firebaseUser) => {
         setUser(firebaseUser);

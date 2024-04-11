@@ -1,13 +1,13 @@
 import type { FC, ReactElement } from "react";
 import { useEffect, useMemo, useState } from "react";
-import type { Move, Square } from "chess.js";
+import type { Color, Move, Square } from "chess.js";
 import { Chess } from "chess.js";
 import { Chessboard as ReactChessboard } from "react-chessboard";
 import { get, onValue, ref, set } from "firebase/database";
 import { database } from "@/firebase/firebase";
 import { useQuery } from "@tanstack/react-query";
 import Loader from "@/components/loader";
-import { redirect } from "next/navigation";
+import { useLocalStorage } from "usehooks-ts";
 
 interface StateSnapshot {
   readonly move: Move;
@@ -50,15 +50,7 @@ const Chessboard: FC<ChessboardProps> = ({
 }: ChessboardProps): ReactElement | null => {
   const game = useMemo(() => new Chess(), []);
   const [clientFen, setClientFen] = useState(game.fen());
-  const color = useMemo(() => {
-    const localStorageColor = localStorage.getItem("color");
-
-    if (null === localStorageColor) {
-      redirect("/");
-    }
-
-    return localStorageColor;
-  }, []);
+  const [localStorageColor] = useLocalStorage<Color>("color", "w");
 
   const { isLoading, data: remoteFen } = useQuery({
     queryKey: ["remoteState"],
@@ -83,7 +75,7 @@ const Chessboard: FC<ChessboardProps> = ({
 
         const stateSnapshot = snapshot.val() as StateSnapshot;
 
-        if (color === stateSnapshot.move.color) {
+        if (localStorageColor === stateSnapshot.move.color) {
           return;
         }
 
@@ -92,14 +84,14 @@ const Chessboard: FC<ChessboardProps> = ({
         setClientFen(gameCopy.fen());
       },
     );
-  }, [color]);
+  }, [localStorageColor]);
 
   const makeAMove = (move: Readonly<Move>): Move | null => {
     const gameCopy = new Chess(clientFen);
 
     const result = gameCopy.move(move);
 
-    if (!result || color !== result.color) {
+    if (!result || localStorageColor !== result.color) {
       return null;
     }
 
@@ -124,12 +116,12 @@ const Chessboard: FC<ChessboardProps> = ({
   };
 
   const boardOrientation = useMemo(() => {
-    if ("w" === color) {
+    if ("w" === localStorageColor) {
       return "white";
     }
 
     return "black";
-  }, [color]);
+  }, [localStorageColor]);
 
   if (isLoading) {
     return <Loader />;

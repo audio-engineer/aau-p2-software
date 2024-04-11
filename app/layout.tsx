@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
 import type { FC, ReactNode } from "react";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
-import MainContainer from "@/components/main-container";
 import CssBaseline from "@mui/material/CssBaseline";
 import ErrorHandler from "@/utils/error-handler";
+import dynamic from "next/dynamic";
+
+const MainContainer = dynamic(
+  async () => import("@/components/main-container"),
+  {
+    ssr: false,
+  },
+);
 
 export const metadata: Metadata = {
   title: "ChessTeacher",

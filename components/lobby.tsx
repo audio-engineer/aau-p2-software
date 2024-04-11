@@ -1,5 +1,5 @@
 import type { FC, ReactElement, ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import type { GridColDef, GridRowsProp } from "@mui/x-data-grid";
 import { DataGrid } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
@@ -11,6 +11,8 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select, { type SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+import { useLocalStorage } from "usehooks-ts";
+import type { Color } from "chess.js";
 
 const rows: GridRowsProp = [
   { id: 1, givenName: "Martin", surname: "Kedmenec", rating: 800 },
@@ -40,17 +42,19 @@ interface LobbyProperties {
 const Lobby: FC<LobbyProperties> = ({
   user,
 }: LobbyProperties): ReactElement | null => {
-  const [color, setColor] = useState("w");
+  const [localStorageColor, setLocalStorageColor] = useLocalStorage<Color>(
+    "color",
+    "w",
+  );
 
   useEffect(() => {
-    localStorage.setItem("color", color);
-  }, [color]);
+    setLocalStorageColor("w");
+  }, [setLocalStorageColor]);
 
   // SelectChangeEvent couldn't be whitelisted even in eslint.config.js...
   // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
   const handleChange = (event: SelectChangeEvent): void => {
-    setColor(event.target.value);
-    localStorage.setItem("color", event.target.value);
+    setLocalStorageColor(event.target.value as Color);
   };
 
   return (
@@ -68,7 +72,7 @@ const Lobby: FC<LobbyProperties> = ({
         <InputLabel id="color-label">Color</InputLabel>
         <Select
           labelId="color-label"
-          value={color}
+          value={localStorageColor}
           label="Color"
           onChange={handleChange}
         >
