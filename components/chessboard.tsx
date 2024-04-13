@@ -1,60 +1,80 @@
 import type { FC, ReactElement } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Color, Move, Square } from "chess.js";
 import { Chess } from "chess.js";
 import { Chessboard as ReactChessboard } from "react-chessboard";
-import { get, onValue, ref, set } from "firebase/database";
+import { get, onValue, ref, update } from "firebase/database";
 import { database } from "@/firebase/firebase";
 import { useQuery } from "@tanstack/react-query";
 import Loader from "@/components/loader";
-import { useLocalStorage } from "usehooks-ts";
-
-interface StateSnapshot {
-  readonly move: Move;
-  readonly fen: string;
-}
+import type {
+  Match,
+  MatchId,
+  MatchRecord,
+  PlayerMatchInfo,
+} from "@/types/database";
+import type { User } from "@firebase/auth";
 
 interface ChessboardProps {
+  readonly user: User;
+  readonly mid: MatchId;
   readonly onLegalMove: (fen: string) => void;
 }
 
-const getRemoteState = async (): Promise<string | null> => {
-  const snapshot = await get(
-    ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/state`),
-  );
-
-  if (!snapshot.exists()) {
-    return null;
-  }
-
-  const stateSnapshot = snapshot.val() as StateSnapshot;
-
-  return stateSnapshot.fen;
-};
-
-const setRemoteState = async (
-  move: Readonly<Move>,
+const updateRemoteState = async (
+  mid: keyof MatchRecord,
+  latestMove: Readonly<Move>,
   fen: string,
 ): Promise<void> => {
-  await set(
-    ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/state`),
-    {
-      move,
-      fen,
-    },
-  );
+  await update(ref(database, `matches/${mid}`), {
+    fen,
+    latestMove,
+  });
 };
 
 const Chessboard: FC<ChessboardProps> = ({
+  user,
+  mid,
   onLegalMove,
 }: ChessboardProps): ReactElement | null => {
   const game = useMemo(() => new Chess(), []);
   const [clientFen, setClientFen] = useState(game.fen());
-  const [localStorageColor] = useLocalStorage<Color>("color", "w");
+  const [color, setColor] = useState<Color>("w");
+
+  const getRemoteFen = useCallback(async () => {
+    const snapshot = await get(ref(database, `matches/${mid}`));
+
+    if (!snapshot.exists()) {
+      return null;
+    }
+
+    const match = snapshot.val() as Match;
+
+    return match.fen;
+  }, [mid]);
+
+  const getRemoteColor = useCallback(async () => {
+    const playerSnapshot = await get(
+      ref(database, `matches/${mid}/players/${user.uid}`),
+    );
+
+    if (!playerSnapshot.exists()) {
+      return null;
+    }
+
+    const player = playerSnapshot.val() as PlayerMatchInfo;
+
+    return player.color;
+  }, [mid, user]);
 
   const { isLoading, data: remoteFen } = useQuery({
-    queryKey: ["remoteState"],
-    queryFn: getRemoteState,
+    queryKey: ["remoteFen"],
+    queryFn: getRemoteFen,
+  });
+
+  const { isLoading: isLoadingTwo, data: remoteColor } = useQuery({
+    queryKey: ["remoteColor"],
+    queryFn: getRemoteColor,
   });
 
   useEffect(() => {
@@ -66,39 +86,46 @@ const Chessboard: FC<ChessboardProps> = ({
   }, [remoteFen]);
 
   useEffect(() => {
-    return onValue(
-      ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/state`),
-      (snapshot) => {
-        if (!snapshot.exists()) {
-          return;
-        }
+    if (null === remoteColor || undefined === remoteColor) {
+      return;
+    }
 
-        const stateSnapshot = snapshot.val() as StateSnapshot;
+    setColor(remoteColor);
+  }, [remoteColor]);
 
-        if (localStorageColor === stateSnapshot.move.color) {
-          return;
-        }
+  useEffect(() => {
+    return onValue(ref(database, `matches/${mid}`), (snapshot) => {
+      if (!snapshot.exists()) {
+        return;
+      }
 
-        const gameCopy = new Chess(stateSnapshot.fen);
+      const match = snapshot.val() as Match;
 
-        setClientFen(gameCopy.fen());
-      },
-    );
-  }, [localStorageColor]);
+      setColor(match.players[user.uid].color);
+
+      if (color === match.latestMove.color) {
+        return;
+      }
+
+      const gameCopy = new Chess(match.fen);
+
+      setClientFen(gameCopy.fen());
+    });
+  }, [mid, color, user]);
 
   const makeAMove = (move: Readonly<Move>): Move | null => {
     const gameCopy = new Chess(clientFen);
 
     const result = gameCopy.move(move);
 
-    if (!result || localStorageColor !== result.color) {
+    if (!result || color !== result.color) {
       return null;
     }
 
     setClientFen(gameCopy.fen());
     onLegalMove(gameCopy.fen());
 
-    setRemoteState(result, gameCopy.fen()).catch((error: unknown) => {
+    updateRemoteState(mid, result, gameCopy.fen()).catch((error: unknown) => {
       console.error(error);
     });
 
@@ -116,14 +143,14 @@ const Chessboard: FC<ChessboardProps> = ({
   };
 
   const boardOrientation = useMemo(() => {
-    if ("w" === localStorageColor) {
+    if ("w" === color) {
       return "white";
     }
 
     return "black";
-  }, [localStorageColor]);
+  }, [color]);
 
-  if (isLoading) {
+  if (isLoading || isLoadingTwo) {
     return <Loader />;
   }
 

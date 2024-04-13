@@ -4,7 +4,7 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 
 interface AccountPageProps {
-  readonly user: User | null;
+  readonly user: User;
 }
 
 const AccountPage: FC<AccountPageProps> = ({
@@ -20,8 +20,8 @@ const AccountPage: FC<AccountPageProps> = ({
         p: 4,
       }}
     >
-      <Typography variant="h5">Name: {user?.displayName}</Typography>
-      <Typography variant="h5">Email: {user?.email}</Typography>
+      <Typography variant="h5">Name: {user.displayName}</Typography>
+      <Typography variant="h5">Email: {user.email}</Typography>
     </Paper>
   );
 };

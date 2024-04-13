@@ -16,7 +16,7 @@ const Home: FC = (): ReactElement | null => {
     return <Loader />;
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user) {
     return <HomePage />;
   }
 

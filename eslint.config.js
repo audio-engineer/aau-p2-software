@@ -51,6 +51,11 @@ export default tseslint.config(
             },
             {
               from: "package",
+              package: "@mui/x-data-grid",
+              name: ["GridRenderCellParams"],
+            },
+            {
+              from: "package",
               package: "react",
               name: ["ChangeEvent", "MouseEvent", "ReactNode"],
             },
