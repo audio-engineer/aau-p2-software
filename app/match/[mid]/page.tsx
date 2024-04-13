@@ -10,12 +10,21 @@ import Paper from "@mui/material/Paper";
 import ChatProvider from "@/components/chat-provider";
 import AuthenticationContext from "@/app/authentication-context";
 import Box from "@mui/material/Box";
+import type { MatchId } from "@/types/database";
+
+interface MatchProps {
+  readonly params: {
+    readonly mid: MatchId;
+  };
+}
 
 const initialLegalMoveCount = 0;
 const legalMoveCountIncrease = 1;
 
-const Game: FC = (): ReactElement | null => {
-  const { isLoading, isAuthenticated } = useContext(AuthenticationContext);
+const Match: FC<MatchProps> = ({ params }: MatchProps): ReactElement | null => {
+  const { isLoading, isAuthenticated, user } = useContext(
+    AuthenticationContext,
+  );
   const [fen, setFen] = useState("");
   const [legalMoveCount, setLegalMoveCount] = useState(initialLegalMoveCount);
 
@@ -23,7 +32,7 @@ const Game: FC = (): ReactElement | null => {
     return <Loader />;
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user) {
     redirect("/");
   }
 
@@ -51,6 +60,8 @@ const Game: FC = (): ReactElement | null => {
                 setFen(liftedFen);
                 setLegalMoveCount(legalMoveCount + legalMoveCountIncrease);
               }}
+              mid={params.mid}
+              user={user}
             />
           </Box>
         </Grid>
@@ -62,4 +73,4 @@ const Game: FC = (): ReactElement | null => {
   );
 };
 
-export default Game;
+export default Match;

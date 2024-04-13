@@ -16,7 +16,7 @@ const Account: FC = (): ReactElement | null => {
     return <Loader />;
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user) {
     redirect("/");
   }
 
