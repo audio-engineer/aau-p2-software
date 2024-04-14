@@ -12,7 +12,7 @@ import {
   MessageList,
   TypingIndicator,
 } from "@chatscope/chat-ui-kit-react";
-import type { MessageContent, User } from "@chatscope/use-chat";
+import type { MessageContent, User as UseChatUser } from "@chatscope/use-chat";
 import {
   ChatMessage,
   MessageContentType,
@@ -21,23 +21,58 @@ import {
   useChat,
 } from "@chatscope/use-chat";
 import type { StockfishMessageResponse } from "@/app/api/stockfish/route";
-import { onValue, ref, set } from "firebase/database";
+import { onChildAdded, push, ref } from "firebase/database";
 import { database } from "@/firebase/firebase";
-
-interface ChatSnapshot {
-  readonly message: ChatMessage<MessageContentType>;
-}
+import type { User as FirebaseUser } from "@firebase/auth";
+import type { MatchId } from "@/types/database";
 
 interface ChatProps {
-  readonly user: User;
+  readonly useChatUser: UseChatUser;
+  readonly firebaseUser: FirebaseUser;
+  readonly mid: MatchId;
   readonly fen: string;
   readonly legalMoveCount: number;
 }
 
+const pushNewMessage = async (
+  mid: MatchId,
+  message: ChatMessage<MessageContentType>,
+): Promise<void> => {
+  await push(ref(database, `messages/${mid}`), {
+    ...message,
+  });
+};
+
+const callStockfish = async (mid: MatchId, fen: string): Promise<void> => {
+  const response = await fetch("/api/stockfish", {
+    method: "POST",
+    body: JSON.stringify({ fen }),
+  });
+
+  const responseJson = (await response.json()) as StockfishMessageResponse;
+
+  const message = new ChatMessage({
+    id: "",
+    content:
+      responseJson.message as unknown as MessageContent<MessageContentType.TextPlain>,
+    contentType: MessageContentType.TextPlain,
+    senderId: "Stockfish",
+    direction: MessageDirection.Incoming,
+    status: MessageStatus.Sent,
+    updatedTime: new Date(),
+  });
+
+  pushNewMessage(mid, message).catch((error: unknown) => {
+    console.error(error);
+  });
+};
+
 const openingMoveWasPlayed = 1;
 
 const Chat: FC<ChatProps> = ({
-  user,
+  useChatUser,
+  firebaseUser,
+  mid,
   fen,
   legalMoveCount,
 }: ChatProps): ReactElement | null => {
@@ -54,73 +89,74 @@ const Chat: FC<ChatProps> = ({
   } = useChat();
 
   useEffect(() => {
-    return () => {
-      setCurrentUser(user);
-      setActiveConversation("123");
-    };
-  }, [setActiveConversation, setCurrentUser, user]);
+    setCurrentUser(useChatUser);
+    setActiveConversation(mid);
+  }, [mid, setActiveConversation, setCurrentUser, useChatUser]);
 
   useEffect(() => {
-    return onValue(
-      ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/chat`),
-      (snapshot) => {
-        if (!snapshot.exists()) {
-          return;
-        }
+    return onChildAdded(ref(database, `messages/${mid}`), (snapshot) => {
+      if (!snapshot.exists()) {
+        return;
+      }
 
-        const chatSnapshot = snapshot.val() as ChatSnapshot;
-        const { message } = chatSnapshot;
+      const message = snapshot.val() as ChatMessage<MessageContentType>;
 
-        let direction = MessageDirection.Outgoing;
+      let direction = MessageDirection.Outgoing;
 
-        if (message.senderId !== user.id) {
-          direction = MessageDirection.Incoming;
-        }
+      if (message.senderId !== firebaseUser.uid) {
+        direction = MessageDirection.Incoming;
+      }
 
-        sendMessage({
-          message: new ChatMessage(
-            new ChatMessage({
-              id: "",
-              content: message.content,
-              contentType: message.contentType,
-              senderId: message.senderId,
-              direction,
-              status: message.status,
-            }),
-          ),
-          conversationId: "123",
-          senderId: message.senderId,
-        });
-      },
-    );
-  }, [sendMessage, user.id]);
-
-  const callStockfish = useCallback(async (): Promise<void> => {
-    const response = await fetch("/api/stockfish", {
-      method: "POST",
-      body: JSON.stringify({ fen }),
+      sendMessage({
+        message: new ChatMessage(
+          new ChatMessage({
+            id: "",
+            content: message.content,
+            contentType: message.contentType,
+            senderId: message.senderId,
+            direction,
+            status: message.status,
+          }),
+        ),
+        conversationId: mid,
+        senderId: message.senderId,
+      });
     });
 
-    const responseJson = (await response.json()) as StockfishMessageResponse;
-
-    const message = new ChatMessage({
-      id: "",
-      content:
-        responseJson.message as unknown as MessageContent<MessageContentType.TextPlain>,
-      contentType: MessageContentType.TextPlain,
-      senderId: "Stockfish",
-      direction: MessageDirection.Incoming,
-      status: MessageStatus.Sent,
-      updatedTime: new Date(),
-    });
-
-    await set(
-      ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/chat`),
-      {
-        message,
-      },
-    );
-  }, [fen]);
+    // return onValue(child(ref(database, `messages/${mid}`), "/"), (snapshot) => {
+    //   if (!snapshot.exists()) {
+    //     return;
+    //   }
+    //
+    //   const messageSnapshot = snapshot.val() as Record<
+    //     string,
+    //     ChatMessage<MessageContentType>
+    //   >;
+    //   console.log("on value message snapshot", messageSnapshot);
+    //   const [message] = Object.values(messageSnapshot);
+    //
+    //   let direction = MessageDirection.Outgoing;
+    //
+    //   if (message.senderId !== firebaseUser.uid) {
+    //     direction = MessageDirection.Incoming;
+    //   }
+    //
+    //   sendMessage({
+    //     message: new ChatMessage(
+    //       new ChatMessage({
+    //         id: "",
+    //         content: message.content,
+    //         contentType: message.contentType,
+    //         senderId: message.senderId,
+    //         direction,
+    //         status: message.status,
+    //       }),
+    //     ),
+    //     conversationId: mid,
+    //     senderId: message.senderId,
+    //   });
+    // });
+  }, [firebaseUser, mid, sendMessage, useChatUser]);
 
   useEffect(() => {
     if (legalMoveCount < openingMoveWasPlayed) {
@@ -129,14 +165,14 @@ const Chat: FC<ChatProps> = ({
       };
     }
 
-    callStockfish().catch((error: unknown) => {
+    callStockfish(mid, fen).catch((error: unknown) => {
       console.error(error);
     });
 
     return () => {
       return;
     };
-  }, [callStockfish, legalMoveCount]);
+  }, [fen, legalMoveCount, mid]);
 
   const [currentUserAvatar, currentUserName] = useMemo(() => {
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
@@ -161,7 +197,7 @@ const Chat: FC<ChatProps> = ({
       sendTyping({
         conversationId: activeConversation.id,
         isTyping: true,
-        userId: user.id,
+        userId: useChatUser.id,
         content: "",
         throttle: true,
       });
@@ -173,18 +209,13 @@ const Chat: FC<ChatProps> = ({
       id: "",
       content: text as unknown as MessageContent<MessageContentType.TextHtml>,
       contentType: MessageContentType.TextHtml,
-      senderId: user.id,
+      senderId: firebaseUser.uid,
       direction: MessageDirection.Outgoing,
       status: MessageStatus.Sent,
       updatedTime: new Date(),
     });
 
-    set(
-      ref(database, `games/${process.env.NEXT_PUBLIC_TEST_SESSION_ID}/chat`),
-      {
-        message,
-      },
-    ).catch((error: unknown) => {
+    pushNewMessage(mid, message).catch((error: unknown) => {
       console.error(error);
     });
   };

@@ -22,9 +22,7 @@ const initialLegalMoveCount = 0;
 const legalMoveCountIncrease = 1;
 
 const Match: FC<MatchProps> = ({ params }: MatchProps): ReactElement | null => {
-  const { isLoading, isAuthenticated, user } = useContext(
-    AuthenticationContext,
-  );
+  const { isLoading, user } = useContext(AuthenticationContext);
   const [fen, setFen] = useState("");
   const [legalMoveCount, setLegalMoveCount] = useState(initialLegalMoveCount);
 
@@ -32,7 +30,7 @@ const Match: FC<MatchProps> = ({ params }: MatchProps): ReactElement | null => {
     return <Loader />;
   }
 
-  if (!isAuthenticated || !user) {
+  if (!user) {
     redirect("/");
   }
 
@@ -66,7 +64,12 @@ const Match: FC<MatchProps> = ({ params }: MatchProps): ReactElement | null => {
           </Box>
         </Grid>
         <Grid xs={12} md={6} height={{ sm: "100%" }} padding={{ md: "1rem" }}>
-          <ChatProvider fen={fen} legalMoveCount={legalMoveCount} />
+          <ChatProvider
+            fen={fen}
+            user={user}
+            mid={params.mid}
+            legalMoveCount={legalMoveCount}
+          />
         </Grid>
       </Grid>
     </Paper>

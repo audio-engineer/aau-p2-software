@@ -25,7 +25,6 @@ const MainContainer: FC<Children> = ({
 }: Readonly<Children>): ReactElement | null => {
   const [colorMode, setColorMode] = useState<ColorMode>(light);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [localStorageColorMode, setLocalStorageColorMode] =
     useLocalStorage<ColorMode>("color-mode", "light");
@@ -69,7 +68,6 @@ const MainContainer: FC<Children> = ({
       auth,
       (firebaseUser) => {
         setUser(firebaseUser);
-        setIsAuthenticated(!!firebaseUser);
         setIsLoading(false);
       },
       (error: Readonly<Error>) => {
@@ -82,9 +80,7 @@ const MainContainer: FC<Children> = ({
     <ColorModeContext.Provider value={colorModeMemo}>
       <ThemeProvider theme={themeMemo}>
         <CssBaseline />
-        <AuthenticationContext.Provider
-          value={{ isLoading, isAuthenticated, user }}
-        >
+        <AuthenticationContext.Provider value={{ isLoading, user }}>
           <QueryClientProvider client={queryClient}>
             <Box>
               <Navigation />

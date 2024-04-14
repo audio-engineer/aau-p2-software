@@ -8,15 +8,13 @@ import AuthenticationContext from "@/app/authentication-context";
 import { redirect } from "next/navigation";
 
 const Account: FC = (): ReactElement | null => {
-  const { isLoading, isAuthenticated, user } = useContext(
-    AuthenticationContext,
-  );
+  const { isLoading, user } = useContext(AuthenticationContext);
 
   if (isLoading) {
     return <Loader />;
   }
 
-  if (!isAuthenticated || !user) {
+  if (!user) {
     redirect("/");
   }
 
