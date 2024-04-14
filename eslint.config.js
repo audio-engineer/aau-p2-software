@@ -37,7 +37,7 @@ export default tseslint.config(
             {
               from: "package",
               package: "@chatscope/use-chat",
-              name: ["User"],
+              name: ["User", "ChatMessage"],
             },
             {
               from: "package",

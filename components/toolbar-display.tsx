@@ -5,13 +5,13 @@ import ToolbarMenu from "@/components/toolbar-menu";
 import AuthenticationContext from "@/app/authentication-context";
 
 const ToolbarDisplay: FC = (): ReactElement | null => {
-  const { isLoading, isAuthenticated } = useContext(AuthenticationContext);
+  const { isLoading, user } = useContext(AuthenticationContext);
 
   if (isLoading) {
     return <></>;
   }
 
-  if (!isAuthenticated) {
+  if (!user) {
     return <SignInButton />;
   }
 
