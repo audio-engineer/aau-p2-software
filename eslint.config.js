@@ -72,12 +72,6 @@ export default tseslint.config(
           patterns: ["@mui/*/*/*"],
         },
       ],
-      "@typescript-eslint/no-magic-numbers": [
-        "error",
-        {
-          ignoreEnums: true,
-        },
-      ],
     },
   },
   eslintConfigPrettier,

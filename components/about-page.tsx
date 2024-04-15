@@ -1,11 +1,22 @@
 import type { FC, ReactElement } from "react";
-import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import AboutCard from "@/components/about-card";
+import Grid from "@mui/material/Unstable_Grid2";
 
 const AboutPage: FC = (): ReactElement | null => {
   return (
-    <Paper sx={{ display: "flex", height: "80%", width: "50%", p: 4 }}>
-      This web application was written as a university project
-    </Paper>
+    <Grid>
+      <Typography variant="h1" align="center">
+        About Us
+      </Typography>
+      <AboutCard
+        image_path="images/default_profile.jpg"
+        name="Sebastian Mygind"
+        description="
+        Sebastian was one of the founders of this here
+        revolutionary educational chess game, one might think he is god."
+      />
+    </Grid>
   );
 };
 

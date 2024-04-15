@@ -1,35 +1,38 @@
 import type { User } from "@firebase/auth";
-import type { Color } from "chess.js";
+import type { Color, Move } from "chess.js";
 
-export type BaseUser = Pick<User, "displayName">;
+export type MatchId = string;
 
-export interface ActiveUser extends BaseUser {
+export type BaseActiveUser = Pick<User, "displayName">;
+
+export interface ActiveUser extends BaseActiveUser {
   readonly sessionCount: number;
 }
 
 export type ActiveUserRecord = Readonly<Record<User["uid"], ActiveUser>>;
 
-export enum PlayerNumber {
-  playerOne = 1,
-  playerTwo = 2,
-}
-
-export interface MatchPlayerInfo extends BaseUser {
+export interface BasePlayerMatchInfo {
   readonly color: Color;
-  readonly playerNumber: PlayerNumber;
 }
 
-export type MatchPlayerRecord = Readonly<Record<User["uid"], MatchPlayerInfo>>;
-
-export interface State {
-  readonly fen: string | false;
+export interface PlayerOneMatchInfo extends BasePlayerMatchInfo {
+  readonly playerOne: boolean;
+  readonly playerTwo: never;
 }
+
+export interface PlayerTwoMatchInfo extends BasePlayerMatchInfo {
+  readonly playerOne: never;
+  readonly playerTwo: boolean;
+}
+
+export type PlayerMatchInfo = PlayerOneMatchInfo | PlayerTwoMatchInfo;
+
+export type MatchPlayerRecord = Readonly<Record<User["uid"], PlayerMatchInfo>>;
 
 export interface Match {
-  readonly state: State;
+  readonly fen: string;
+  readonly latestMove: Move;
   readonly players: MatchPlayerRecord;
 }
-
-export type MatchId = string;
 
 export type MatchRecord = Readonly<Record<MatchId, Match>>;

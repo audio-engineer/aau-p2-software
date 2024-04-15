@@ -16,26 +16,24 @@ import InputLabel from "@mui/material/InputLabel";
 import Select, { type SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import type { Color } from "chess.js";
-import type { DataSnapshot } from "firebase/database";
-import { onChildChanged, onValue, push, ref, set } from "firebase/database";
+import { onValue, push, ref, set } from "firebase/database";
 import { database } from "@/firebase/firebase";
 import type {
-  Match,
+  ActiveUserRecord,
+  BaseActiveUser,
+  BasePlayerMatchInfo,
   MatchId,
-  MatchPlayerInfo,
   MatchRecord,
+  PlayerMatchInfo,
 } from "@/types/database";
-import { PlayerNumber } from "@/types/database";
-import { toast } from "react-toastify";
-import { findPlayerUidByPlayerNumber } from "@/utils/utils";
 
-type MatchRowPlayerData = MatchPlayerInfo & {
+type MatchRowPlayerData = PlayerMatchInfo & {
   readonly displayName: User["displayName"];
 };
 
 interface MatchRowModel {
   readonly id: MatchId;
-  readonly playerOne: MatchRowPlayerData | undefined;
+  readonly playerOne: MatchRowPlayerData;
   readonly playerTwo: MatchRowPlayerData | undefined;
 }
 
@@ -43,75 +41,36 @@ interface LobbyProperties {
   readonly user: User;
 }
 
-const getMatchRowPlayerData = (
-  matchRecord: MatchRecord,
-  key: string,
-  uid: User["uid"] | undefined,
-): MatchRowPlayerData | undefined => {
-  if (undefined === uid) {
-    return undefined;
-  }
-
-  const player = matchRecord[key].players[uid];
-
-  return {
-    displayName: player.displayName,
-    color: player.color,
-    playerNumber: player.playerNumber,
-  };
-};
-
-const getMatchRowModelArray = (matchRecord: MatchRecord): MatchRowModel[] => {
-  return Object.keys(matchRecord).map((key) => {
-    const matchPlayerRecord = matchRecord[key].players;
-
-    const playerOneUid = findPlayerUidByPlayerNumber(
-      matchPlayerRecord,
-      PlayerNumber.playerOne,
-    );
-    const playerTwoUid = findPlayerUidByPlayerNumber(
-      matchPlayerRecord,
-      PlayerNumber.playerTwo,
-    );
-
-    return {
-      id: key,
-      playerOne: getMatchRowPlayerData(matchRecord, key, playerOneUid),
-      playerTwo: getMatchRowPlayerData(matchRecord, key, playerTwoUid),
-    };
-  });
-};
-
 const joinMatch = async (
   params: GridRenderCellParams<MatchRowModel>,
   user: User,
 ): Promise<void> => {
   let color = "w";
 
-  if ("w" === params.row.playerOne?.color) {
+  if ("w" === params.row.playerOne.color) {
     color = "b";
   }
 
   await set(ref(database, `matches/${params.row.id}/players/${user.uid}`), {
     color,
-    displayName: user.displayName,
-    playerNumber: 2,
+    playerTwo: true,
   });
 };
 
-const createNewMatch = async (user: User, color: Color): Promise<void> => {
+const createNewMatch = async (
+  uid: keyof ActiveUserRecord,
+  color: Color,
+): Promise<void> => {
   await push(ref(database, "matches"), {
-    state: {
-      fen: false,
-    },
+    fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    latestMove: { from: true, to: true, color: true },
     players: {
-      [user.uid]: {
-        displayName: user.displayName,
+      [uid]: {
         color,
-        playerNumber: 1,
+        playerOne: true,
       },
     },
-  } satisfies Match);
+  });
 };
 
 const joinMatchHandler = (
@@ -121,30 +80,6 @@ const joinMatchHandler = (
   joinMatch(params, user).catch((error: unknown) => {
     console.error(error);
   });
-};
-
-const displayToast = (matchSnapshot: DataSnapshot, uid: User["uid"]): void => {
-  const match = matchSnapshot.val() as Match;
-
-  if (!Object.keys(match.players).includes(uid)) {
-    return;
-  }
-
-  const opponentUid = Object.keys(match.players).find((id) => id !== uid);
-
-  if (undefined === opponentUid) {
-    return;
-  }
-
-  if (PlayerNumber.playerTwo !== match.players[opponentUid].playerNumber) {
-    return;
-  }
-
-  const opponentDisplayName = match.players[opponentUid].displayName ?? "";
-
-  toast(
-    `♟️ Player ${opponentDisplayName} joined your match ${matchSnapshot.key}!`,
-  );
 };
 
 const columns = (user: User): GridColDef[] => [
@@ -172,11 +107,12 @@ const columns = (user: User): GridColDef[] => [
   {
     field: "actions",
     headerName: "Actions",
-    flex: 1,
+    width: 150,
+    flex: 0,
     renderCell: (params: GridRenderCellParams<MatchRowModel>): ReactNode => {
       if (
         undefined === params.row.playerTwo &&
-        user.displayName !== params.row.playerOne?.displayName
+        user.displayName !== params.row.playerOne.displayName
       ) {
         return (
           <Button
@@ -204,6 +140,7 @@ const Lobby: FC<LobbyProperties> = ({
   user,
 }: LobbyProperties): ReactElement | null => {
   const [color, setColor] = useState<Color>("w");
+  const [activeUsers, setActiveUsers] = useState<ActiveUserRecord>();
   const [matches, setMatches] = useState<MatchRecord>();
 
   useEffect(() => {
@@ -217,25 +154,47 @@ const Lobby: FC<LobbyProperties> = ({
   }, []);
 
   useEffect(() => {
-    return onChildChanged(ref(database, `matches`), (matchSnapshot) => {
-      if (!matchSnapshot.exists()) {
+    return onValue(ref(database, "activeUsers"), (activeUsersSnapshot) => {
+      if (!activeUsersSnapshot.exists()) {
         return;
       }
 
-      displayToast(matchSnapshot, user.uid);
+      setActiveUsers(activeUsersSnapshot.val() as ActiveUserRecord);
     });
-  }, [user.uid]);
+  }, []);
 
   const rows: GridRowsProp = useMemo(() => {
-    if (!matches) {
+    if (!activeUsers || !matches) {
       return [];
     }
 
-    return getMatchRowModelArray(matches);
-  }, [matches]);
+    const getPlayer = (
+      key: string,
+      uid: User["uid"],
+    ): (BaseActiveUser & BasePlayerMatchInfo) | undefined => {
+      if (!uid) {
+        return undefined;
+      }
+
+      return {
+        displayName: activeUsers[uid].displayName,
+        color: matches[key].players[uid].color,
+      };
+    };
+
+    return Object.keys(matches).map((key) => {
+      const [playerOneUid, playerTwoUid] = Object.keys(matches[key].players);
+
+      return {
+        id: key,
+        playerOne: getPlayer(key, playerOneUid),
+        playerTwo: getPlayer(key, playerTwoUid),
+      };
+    });
+  }, [activeUsers, matches]);
 
   const createNewMatchHandler = (): void => {
-    createNewMatch(user, color).catch((error: unknown) => {
+    createNewMatch(user.uid, color).catch((error: unknown) => {
       console.error(error);
     });
   };
