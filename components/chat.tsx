@@ -24,14 +24,17 @@ import type { StockfishMessageResponse } from "@/app/api/stockfish/route";
 import { onChildAdded, push, ref } from "firebase/database";
 import { database } from "@/firebase/firebase";
 import type { User as FirebaseUser } from "@firebase/auth";
-import type { MatchId } from "@/types/database";
+import type { MatchId, MatchPlayerInfo } from "@/types/database";
+import Fen from "chess-fen";
+import { getLatestMoveColor, normalizeColor } from "@/utils/utils";
 
 interface ChatProps {
+  readonly fen: string;
+  readonly player: MatchPlayerInfo | null;
+  readonly legalMoveCount: number;
   readonly useChatUser: UseChatUser;
   readonly firebaseUser: FirebaseUser;
   readonly mid: MatchId;
-  readonly fen: string;
-  readonly legalMoveCount: number;
 }
 
 const pushNewMessage = async (
@@ -70,11 +73,12 @@ const callStockfish = async (mid: MatchId, fen: string): Promise<void> => {
 const openingMoveWasPlayed = 1;
 
 const Chat: FC<ChatProps> = ({
+  fen,
+  player,
+  legalMoveCount,
   useChatUser,
   firebaseUser,
   mid,
-  fen,
-  legalMoveCount,
 }: ChatProps): ReactElement | null => {
   const {
     currentMessages,
@@ -122,57 +126,24 @@ const Chat: FC<ChatProps> = ({
         senderId: message.senderId,
       });
     });
-
-    // return onValue(child(ref(database, `messages/${mid}`), "/"), (snapshot) => {
-    //   if (!snapshot.exists()) {
-    //     return;
-    //   }
-    //
-    //   const messageSnapshot = snapshot.val() as Record<
-    //     string,
-    //     ChatMessage<MessageContentType>
-    //   >;
-    //   console.log("on value message snapshot", messageSnapshot);
-    //   const [message] = Object.values(messageSnapshot);
-    //
-    //   let direction = MessageDirection.Outgoing;
-    //
-    //   if (message.senderId !== firebaseUser.uid) {
-    //     direction = MessageDirection.Incoming;
-    //   }
-    //
-    //   sendMessage({
-    //     message: new ChatMessage(
-    //       new ChatMessage({
-    //         id: "",
-    //         content: message.content,
-    //         contentType: message.contentType,
-    //         senderId: message.senderId,
-    //         direction,
-    //         status: message.status,
-    //       }),
-    //     ),
-    //     conversationId: mid,
-    //     senderId: message.senderId,
-    //   });
-    // });
-  }, [firebaseUser, mid, sendMessage, useChatUser]);
+  }, [firebaseUser, mid, sendMessage]);
 
   useEffect(() => {
-    if (legalMoveCount < openingMoveWasPlayed) {
-      return () => {
-        return;
-      };
+    const { toMove } = new Fen(fen);
+    const latestMoveColor = getLatestMoveColor(toMove);
+
+    if (
+      legalMoveCount < openingMoveWasPlayed ||
+      (player &&
+        normalizeColor(player.color) !== normalizeColor(latestMoveColor))
+    ) {
+      return;
     }
 
     callStockfish(mid, fen).catch((error: unknown) => {
       console.error(error);
     });
-
-    return () => {
-      return;
-    };
-  }, [fen, legalMoveCount, mid]);
+  }, [fen, legalMoveCount, mid, player]);
 
   const [currentUserAvatar, currentUserName] = useMemo(() => {
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
