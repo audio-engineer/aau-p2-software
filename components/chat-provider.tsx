@@ -25,14 +25,15 @@ import {
 import { nanoid } from "nanoid";
 import { ChatService } from "@/chat/chat-service";
 import Chat from "@/components/chat";
-import type { MatchId } from "@/types/database";
+import type { MatchId, MatchPlayerInfo } from "@/types/database";
 import type { User as FirebaseUser } from "@firebase/auth";
 
 interface ChatProviderProps {
+  readonly fen: string;
+  readonly player: MatchPlayerInfo | null;
+  readonly legalMoveCount: number;
   readonly user: FirebaseUser;
   readonly mid: MatchId;
-  readonly fen: string;
-  readonly legalMoveCount: number;
 }
 
 const messageIdGenerator = (): string => nanoid();
@@ -99,10 +100,11 @@ const stockfishUser = new UseChatUser({
 });
 
 const ChatProvider: FC<ChatProviderProps> = ({
-  user,
   fen,
-  mid,
+  player,
   legalMoveCount,
+  user,
+  mid,
 }: ChatProviderProps): ReactElement | null => {
   const userUser = useMemo(
     () =>
@@ -134,11 +136,12 @@ const ChatProvider: FC<ChatProviderProps> = ({
       }}
     >
       <Chat
+        fen={fen}
+        player={player}
+        legalMoveCount={legalMoveCount}
         useChatUser={userUser}
         firebaseUser={user}
         mid={mid}
-        fen={fen}
-        legalMoveCount={legalMoveCount}
       />
     </ChatscopeChatProvider>
   );

@@ -1,15 +1,35 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const asyncEventHandler = <A extends any[]>(
-  eventHandler: (...args: A) => Promise<void>,
-): ((...args: A) => void) => {
-  return (...args: A) => {
-    try {
-      eventHandler(...args).catch((error: unknown) => {
-        console.error("Async event handler error", error);
-      });
-    } catch (error) {
-      console.error("Async event handler error", error);
-    }
-  };
+import type { Color as ChessFenColor } from "chess-fen";
+import type { Color as ChessJsColor } from "chess.js";
+import type { MatchPlayerRecord, PlayerNumber } from "@/types/database";
+
+const colorMap: Record<string, string> = {
+  b: "black",
+  w: "white",
 };
-/* eslint-enable */
+
+export const normalizeColor = (color: ChessFenColor | ChessJsColor): string => {
+  return colorMap[color] || color;
+};
+
+export const getLatestMoveColor = (color: ChessFenColor): ChessFenColor => {
+  if ("white" === color) {
+    return "black";
+  }
+
+  return "white";
+};
+
+export const findPlayerUidByPlayerNumber = (
+  matchPlayerRecord: MatchPlayerRecord,
+  playerNumber: PlayerNumber,
+): string | undefined => {
+  const playerId = Object.keys(matchPlayerRecord).find(
+    (id) => matchPlayerRecord[id].playerNumber === playerNumber,
+  );
+
+  if (undefined === playerId) {
+    return undefined;
+  }
+
+  return playerId;
+};
