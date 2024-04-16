@@ -17,8 +17,8 @@ import Select, { type SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import type { Color } from "chess.js";
 import type { DataSnapshot } from "firebase/database";
-import { onChildChanged, onValue, push, ref, set } from "firebase/database";
-import { database } from "@/firebase/firebase";
+import { onChildChanged, onValue, push, set } from "firebase/database";
+import { getMatchesRef, getMatchPlayerRef } from "@/firebase/firebase";
 import type {
   Match,
   MatchId,
@@ -86,21 +86,21 @@ const joinMatch = async (
   params: GridRenderCellParams<MatchRowModel>,
   user: User,
 ): Promise<void> => {
-  let color = "w";
+  let color: Color = "w";
 
   if ("w" === params.row.playerOne?.color) {
     color = "b";
   }
 
-  await set(ref(database, `matches/${params.row.id}/players/${user.uid}`), {
+  await set(getMatchPlayerRef(params.row.id, user.uid), {
     color,
     displayName: user.displayName,
     playerNumber: 2,
-  });
+  } satisfies MatchPlayerInfo);
 };
 
 const createNewMatch = async (user: User, color: Color): Promise<void> => {
-  await push(ref(database, "matches"), {
+  await push(getMatchesRef(), {
     state: {
       fen: false,
     },
@@ -207,7 +207,7 @@ const Lobby: FC<LobbyProperties> = ({
   const [matches, setMatches] = useState<MatchRecord>();
 
   useEffect(() => {
-    return onValue(ref(database, "matches"), (matchesSnapshot) => {
+    return onValue(getMatchesRef(), (matchesSnapshot) => {
       if (!matchesSnapshot.exists()) {
         return;
       }
@@ -217,7 +217,7 @@ const Lobby: FC<LobbyProperties> = ({
   }, []);
 
   useEffect(() => {
-    return onChildChanged(ref(database, `matches`), (matchSnapshot) => {
+    return onChildChanged(getMatchesRef(), (matchSnapshot) => {
       if (!matchSnapshot.exists()) {
         return;
       }
@@ -247,48 +247,59 @@ const Lobby: FC<LobbyProperties> = ({
   };
 
   return (
-    <Paper
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        height: "80%",
-        width: "70%",
-        p: 4,
-      }}
-    >
-      <Box display="flex" justifyContent="space-between">
-        <Typography variant="h4">Welcome back, {user.displayName}!</Typography>
-        <Box display="flex">
-          <FormControl sx={{ marginRight: "1rem" }}>
-            <InputLabel id="color-label">Color</InputLabel>
-            <Select
-              labelId="color-label"
-              value={color}
-              label="Color"
-              onChange={colorSelectionHandler}
+    <Box height="100%" width={{ xs: "100%", md: "70%" }}>
+      <Paper
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          justifyContent: "space-between",
+          height: { xs: "15%", md: "6rem" },
+          p: { xs: 0, sm: 2 },
+          my: 2,
+        }}
+      >
+        <Box
+          height="100%"
+          width="100%"
+          display="flex"
+          flexDirection={{ xs: "column", sm: "row" }}
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Typography variant="h4">
+            Welcome back, {user.displayName}!
+          </Typography>
+          <Box display="flex">
+            <FormControl sx={{ marginRight: "1rem" }}>
+              <InputLabel id="color-label">Color</InputLabel>
+              <Select
+                labelId="color-label"
+                value={color}
+                label="Color"
+                onChange={colorSelectionHandler}
+              >
+                <MenuItem value={"w"}>White</MenuItem>
+                <MenuItem value={"b"}>Black</MenuItem>
+              </Select>
+            </FormControl>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={createNewMatchHandler}
             >
-              <MenuItem value={"w"}>White</MenuItem>
-              <MenuItem value={"b"}>Black</MenuItem>
-            </Select>
-          </FormControl>
-          <Button
-            variant="contained"
-            color="success"
-            onClick={createNewMatchHandler}
-          >
-            Create New Match
-          </Button>
+              Create New Match
+            </Button>
+          </Box>
         </Box>
-      </Box>
-      <Box height="80%" width="100%">
+      </Paper>
+      <Box height="100%" width="100%">
         <DataGrid
           rows={rows}
           columns={columns(user)}
           disableRowSelectionOnClick
         />
       </Box>
-    </Paper>
+    </Box>
   );
 };
 

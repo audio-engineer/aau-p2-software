@@ -1,8 +1,8 @@
 import type { UserCredential } from "firebase/auth";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth, database } from "@/firebase/firebase";
+import { auth, getActiveUserRef } from "@/firebase/firebase";
 import type { DataSnapshot } from "firebase/database";
-import { get, ref, remove, set, update } from "firebase/database";
+import { get, remove, set, update } from "firebase/database";
 import type { ActiveUser, ActiveUserRecord } from "@/types/database";
 
 const sessionCountBeforeRemoval = 1;
@@ -11,7 +11,7 @@ const sessionCountIncrement = 1;
 const findActiveUser = async (
   uid: keyof ActiveUserRecord,
 ): Promise<DataSnapshot> => {
-  return get(ref(database, `activeUsers/${uid}`));
+  return get(getActiveUserRef(uid));
 };
 
 const isUserActive = async (uid: keyof ActiveUserRecord): Promise<boolean> => {
@@ -23,7 +23,7 @@ const isUserActive = async (uid: keyof ActiveUserRecord): Promise<boolean> => {
 const setUserAsActive = async (user: ActiveUserRecord): Promise<void> => {
   const [uid] = Object.keys(user);
 
-  await set(ref(database, `activeUsers/${uid}`), {
+  await set(getActiveUserRef(uid), {
     ...user[uid],
   });
 };
@@ -40,14 +40,14 @@ const setUserAsInactive = async (
   const { sessionCount: currentSessionCount } = snapshot.val() as ActiveUser;
 
   if (sessionCountBeforeRemoval === currentSessionCount) {
-    await remove(ref(database, `activeUsers/${uid}`));
+    await remove(getActiveUserRef(uid));
 
     return;
   }
 
   const sessionCount = currentSessionCount - sessionCountIncrement;
 
-  await update(ref(database, `activeUsers/${uid}`), { sessionCount });
+  await update(getActiveUserRef(uid), { sessionCount });
 };
 
 export const signInWithGoogle = async (): Promise<UserCredential | null> => {
@@ -68,7 +68,7 @@ export const signInWithGoogle = async (): Promise<UserCredential | null> => {
         snapshot.val() as ActiveUser;
       sessionCount = currentSessionCount + sessionCountIncrement;
 
-      await update(ref(database, `activeUsers/${uid}`), { sessionCount });
+      await update(getActiveUserRef(uid), { sessionCount });
 
       return null;
     }
