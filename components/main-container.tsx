@@ -18,6 +18,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useLocalStorage } from "usehooks-ts";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getThemeOptions } from "@/app/theme";
 
 const queryClient = new QueryClient();
 
@@ -55,12 +56,7 @@ const MainContainer: FC<Children> = ({
   );
 
   const themeMemo = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: colorMode,
-        },
-      }),
+    () => createTheme(getThemeOptions(colorMode)),
     [colorMode],
   );
 
@@ -86,7 +82,7 @@ const MainContainer: FC<Children> = ({
           <QueryClientProvider client={queryClient}>
             <Box>
               <Navigation />
-              <Box component="main" display="flex" height="100vh">
+              <Box component="main" display="flex" height={{ xs: "80vh" }}>
                 <Container
                   maxWidth="xl"
                   sx={{

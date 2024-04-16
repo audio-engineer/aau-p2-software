@@ -1,6 +1,9 @@
 import { initializeApp } from "firebase/app";
-import { connectDatabaseEmulator, getDatabase } from "firebase/database";
+import type { DatabaseReference } from "firebase/database";
+import { connectDatabaseEmulator, getDatabase, ref } from "firebase/database";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
+import type { MatchId } from "@/types/database";
+import type { User } from "@firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -15,6 +18,25 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 export const database = getDatabase(app);
 export const auth = getAuth(app);
+
+export const getActiveUserRef = (uid: User["uid"]): DatabaseReference =>
+  ref(database, `activeUsers/${uid}`);
+
+export const getMatchesRef = (): DatabaseReference => ref(database, "matches");
+
+export const getMatchPlayersRef = (mid: MatchId): DatabaseReference =>
+  ref(database, `matches/${mid}/players`);
+
+export const getMatchPlayerRef = (
+  mid: MatchId,
+  uid: User["uid"],
+): DatabaseReference => ref(database, `matches/${mid}/players/${uid}`);
+
+export const getMatchStateRef = (mid: MatchId): DatabaseReference =>
+  ref(database, `matches/${mid}/state`);
+
+export const getMessagesRef = (mid: MatchId): DatabaseReference =>
+  ref(database, `messages/${mid}`);
 
 /**
  * TODO Currently the app is hardcoded to use the emulators by default. This

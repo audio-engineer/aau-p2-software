@@ -21,8 +21,8 @@ import {
   useChat,
 } from "@chatscope/use-chat";
 import type { StockfishMessageResponse } from "@/app/api/stockfish/route";
-import { onChildAdded, push, ref } from "firebase/database";
-import { database } from "@/firebase/firebase";
+import { onChildAdded, push } from "firebase/database";
+import { getMessagesRef } from "@/firebase/firebase";
 import type { User as FirebaseUser } from "@firebase/auth";
 import type { MatchId, MatchPlayerInfo } from "@/types/database";
 import Fen from "chess-fen";
@@ -41,7 +41,7 @@ const pushNewMessage = async (
   mid: MatchId,
   message: ChatMessage<MessageContentType>,
 ): Promise<void> => {
-  await push(ref(database, `messages/${mid}`), {
+  await push(getMessagesRef(mid), {
     ...message,
   });
 };
@@ -98,7 +98,7 @@ const Chat: FC<ChatProps> = ({
   }, [mid, setActiveConversation, setCurrentUser, useChatUser]);
 
   useEffect(() => {
-    return onChildAdded(ref(database, `messages/${mid}`), (snapshot) => {
+    return onChildAdded(getMessagesRef(mid), (snapshot) => {
       if (!snapshot.exists()) {
         return;
       }

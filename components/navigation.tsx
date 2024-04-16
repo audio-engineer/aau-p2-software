@@ -32,7 +32,7 @@ const Navigation: FC = (): ReactElement | null => {
   const { toggleColorMode } = useContext(ColorModeContext);
 
   return (
-    <AppBar>
+    <AppBar position="static">
       <Toolbar>
         <Typography
           variant="h5"
@@ -53,7 +53,9 @@ const Navigation: FC = (): ReactElement | null => {
           </Button>
         </Box>
         <Box marginX="1rem" width={{ lg: "8rem" }}>
-          {theme.palette.mode} mode
+          <Typography display={{ xs: "none", sm: "initial" }}>
+            {theme.palette.mode} mode
+          </Typography>
           <IconButton
             sx={{ ml: 1, color: "inherit" }}
             onClick={toggleColorMode}
