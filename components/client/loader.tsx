@@ -1,3 +1,5 @@
+"use client";
+
 import CircularProgress from "@mui/material/CircularProgress";
 import type { FC, ReactElement } from "react";
 

@@ -1,5 +1,4 @@
-import type { Color as ChessFenColor } from "chess-fen";
-import type { Color as ChessJsColor } from "chess.js";
+import type { Color } from "chess.js";
 import type { MatchPlayerRecord, PlayerNumber } from "@/types/database";
 
 const colorMap: Record<string, string> = {
@@ -7,16 +6,16 @@ const colorMap: Record<string, string> = {
   w: "white",
 };
 
-export const normalizeColor = (color: ChessFenColor | ChessJsColor): string => {
+export const normalizeColor = (color: Color): string => {
   return colorMap[color] || color;
 };
 
-export const getLatestMoveColor = (color: ChessFenColor): ChessFenColor => {
-  if ("white" === color) {
-    return "black";
+export const getLatestMoveColor = (color: Color): Color => {
+  if ("w" === color) {
+    return "b";
   }
 
-  return "white";
+  return "w";
 };
 
 export const findPlayerUidByPlayerNumber = (

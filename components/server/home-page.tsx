@@ -1,7 +1,7 @@
 import type { FC, ReactElement } from "react";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Unstable_Grid2";
-import HomePagePopover from "@/components/home-page-popover";
+import HomePagePopover from "@/components/client/home-page-popover";
 import PersonIcon from "@mui/icons-material/Person";
 import StorageIcon from "@mui/icons-material/Storage";
 import ComputerIcon from "@mui/icons-material/Computer";

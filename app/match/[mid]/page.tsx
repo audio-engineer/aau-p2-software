@@ -1,12 +1,8 @@
-"use client";
-
 import type { FC, ReactElement } from "react";
-import { useContext } from "react";
-import { redirect } from "next/navigation";
-import AuthenticationContext from "@/app/authentication-context";
-import MatchPage from "@/components/match-page";
-import Loader from "@/components/loader";
+import MatchPage from "@/components/server/match-page";
 import type { MatchId } from "@/types/database";
+import { verifySession } from "@/utils/server-actions";
+import MatchProvider from "@/components/client/providers/match-provider";
 
 interface MatchProps {
   readonly params: {
@@ -14,18 +10,20 @@ interface MatchProps {
   };
 }
 
-const Match: FC<MatchProps> = ({ params }: MatchProps): ReactElement | null => {
-  const { isLoading, user } = useContext(AuthenticationContext);
+const Match: FC<MatchProps> = async ({
+  params,
+}: MatchProps): Promise<ReactElement | null> => {
+  const session = await verifySession();
 
-  if (isLoading) {
-    return <Loader />;
+  if (!session) {
+    return null;
   }
 
-  if (!user) {
-    redirect("/");
-  }
-
-  return <MatchPage user={user} mid={params.mid} />;
+  return (
+    <MatchProvider mid={params.mid}>
+      <MatchPage />
+    </MatchProvider>
+  );
 };
 
 export default Match;

@@ -30,6 +30,6 @@ export interface Match {
   readonly players: MatchPlayerRecord;
 }
 
-export type MatchId = string;
+export type MatchId = Readonly<string>;
 
 export type MatchRecord = Readonly<Record<MatchId, Match>>;

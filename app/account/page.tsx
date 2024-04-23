@@ -1,24 +1,15 @@
-"use client";
-
 import type { FC, ReactElement } from "react";
-import { useContext } from "react";
-import Loader from "@/components/loader";
-import AccountPage from "@/components/account-page";
-import AuthenticationContext from "@/app/authentication-context";
-import { redirect } from "next/navigation";
+import AccountPage from "@/components/client/account-page";
+import { verifySession } from "@/utils/server-actions";
 
-const Account: FC = (): ReactElement | null => {
-  const { isLoading, user } = useContext(AuthenticationContext);
+const Account: FC = async (): Promise<ReactElement | null> => {
+  const session = await verifySession();
 
-  if (isLoading) {
-    return <Loader />;
+  if (!session) {
+    return null;
   }
 
-  if (!user) {
-    redirect("/");
-  }
-
-  return <AccountPage user={user} />;
+  return <AccountPage />;
 };
 
 export default Account;

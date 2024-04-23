@@ -1,33 +1,30 @@
-import type { FC, ReactElement, ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
-import type {
-  GridColDef,
-  GridRenderCellParams,
-  GridRowsProp,
+"use client";
+
+import type { FC, ReactElement } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
+import {
+  DataGrid,
+  type GridColDef,
+  type GridRenderCellParams,
+  type GridRowsProp,
 } from "@mui/x-data-grid";
-import { DataGrid } from "@mui/x-data-grid";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
-import type { User } from "@firebase/auth";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import Select, { type SelectChangeEvent } from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import type { Color } from "chess.js";
-import type { DataSnapshot } from "firebase/database";
-import { onChildChanged, onValue, push, set } from "firebase/database";
+import { useAuthentication } from "@/contexts/authentication";
+import type { MatchId, MatchPlayerInfo, MatchRecord } from "@/types/database";
+import { type Match, PlayerNumber } from "@/types/database";
+import {
+  type DataSnapshot,
+  onChildChanged,
+  onValue,
+  set,
+} from "firebase/database";
 import { getMatchesRef, getMatchPlayerRef } from "@/firebase/firebase";
-import type {
-  Match,
-  MatchId,
-  MatchPlayerInfo,
-  MatchRecord,
-} from "@/types/database";
-import { PlayerNumber } from "@/types/database";
-import { toast } from "react-toastify";
+import type { User } from "@firebase/auth";
+import type { SessionUser } from "@/types/session";
 import { findPlayerUidByPlayerNumber } from "@/utils/utils";
+import type { Color } from "chess.js";
+import { toast } from "react-toastify";
+import Button from "@mui/material/Button";
+import Loader from "@/components/client/loader";
 
 type MatchRowPlayerData = MatchPlayerInfo & {
   readonly displayName: User["displayName"];
@@ -39,14 +36,10 @@ interface MatchRowModel {
   readonly playerTwo: MatchRowPlayerData | undefined;
 }
 
-interface LobbyProperties {
-  readonly user: User;
-}
-
 const getMatchRowPlayerData = (
   matchRecord: MatchRecord,
   key: string,
-  uid: User["uid"] | undefined,
+  uid: SessionUser["uid"] | undefined,
 ): MatchRowPlayerData | undefined => {
   if (undefined === uid) {
     return undefined;
@@ -97,21 +90,6 @@ const joinMatch = async (
     displayName: user.displayName,
     playerNumber: 2,
   } satisfies MatchPlayerInfo);
-};
-
-const createNewMatch = async (user: User, color: Color): Promise<void> => {
-  await push(getMatchesRef(), {
-    state: {
-      fen: false,
-    },
-    players: {
-      [user.uid]: {
-        displayName: user.displayName,
-        color,
-        playerNumber: 1,
-      },
-    },
-  } satisfies Match);
 };
 
 const joinMatchHandler = (
@@ -200,10 +178,9 @@ const columns = (user: User): GridColDef[] => [
   },
 ];
 
-const Lobby: FC<LobbyProperties> = ({
-  user,
-}: LobbyProperties): ReactElement | null => {
-  const [color, setColor] = useState<Color>("w");
+const LobbyGrid: FC = (): ReactElement | null => {
+  const { isUserLoading, user } = useAuthentication();
+
   const [matches, setMatches] = useState<MatchRecord>();
 
   useEffect(() => {
@@ -222,9 +199,9 @@ const Lobby: FC<LobbyProperties> = ({
         return;
       }
 
-      displayToast(matchSnapshot, user.uid);
+      displayToast(matchSnapshot, user?.uid ?? "");
     });
-  }, [user.uid]);
+  }, [user?.uid]);
 
   const rows: GridRowsProp = useMemo(() => {
     if (!matches) {
@@ -234,73 +211,17 @@ const Lobby: FC<LobbyProperties> = ({
     return getMatchRowModelArray(matches);
   }, [matches]);
 
-  const createNewMatchHandler = (): void => {
-    createNewMatch(user, color).catch((error: unknown) => {
-      console.error(error);
-    });
-  };
+  if (isUserLoading) {
+    return <Loader />;
+  }
 
-  // SelectChangeEvent couldn't be whitelisted even in eslint.config.js...
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-  const colorSelectionHandler = (event: SelectChangeEvent): void => {
-    setColor(event.target.value as Color);
-  };
+  if (!user) {
+    return null;
+  }
 
   return (
-    <Box height="100%" width={{ xs: "100%", md: "70%" }}>
-      <Paper
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          justifyContent: "space-between",
-          height: { xs: "15%", md: "6rem" },
-          p: { xs: 0, sm: 2 },
-          my: 2,
-        }}
-      >
-        <Box
-          height="100%"
-          width="100%"
-          display="flex"
-          flexDirection={{ xs: "column", sm: "row" }}
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Typography variant="h4">
-            Welcome back, {user.displayName}!
-          </Typography>
-          <Box display="flex">
-            <FormControl sx={{ marginRight: "1rem" }}>
-              <InputLabel id="color-label">Color</InputLabel>
-              <Select
-                labelId="color-label"
-                value={color}
-                label="Color"
-                onChange={colorSelectionHandler}
-              >
-                <MenuItem value={"w"}>White</MenuItem>
-                <MenuItem value={"b"}>Black</MenuItem>
-              </Select>
-            </FormControl>
-            <Button
-              variant="contained"
-              color="success"
-              onClick={createNewMatchHandler}
-            >
-              Create New Match
-            </Button>
-          </Box>
-        </Box>
-      </Paper>
-      <Box height="100%" width="100%">
-        <DataGrid
-          rows={rows}
-          columns={columns(user)}
-          disableRowSelectionOnClick
-        />
-      </Box>
-    </Box>
+    <DataGrid rows={rows} columns={columns(user)} disableRowSelectionOnClick />
   );
 };
 
-export default Lobby;
+export default LobbyGrid;

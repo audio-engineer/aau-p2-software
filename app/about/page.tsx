@@ -1,5 +1,5 @@
 import type { FC, ReactElement } from "react";
-import AboutPage from "@/components/about-page";
+import AboutPage from "@/components/server/about-page";
 
 const About: FC = (): ReactElement | null => {
   return <AboutPage />;

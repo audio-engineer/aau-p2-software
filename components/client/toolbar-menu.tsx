@@ -1,3 +1,5 @@
+"use client";
+
 import type { FC, MouseEvent, ReactElement } from "react";
 import { useState } from "react";
 import IconButton from "@mui/material/IconButton";

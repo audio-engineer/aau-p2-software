@@ -1,30 +1,32 @@
+"use client";
+
 import type { FC, ReactElement } from "react";
-import type { User } from "@firebase/auth";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
 import {
   Avatar,
-  TextField,
-  InputAdornment,
-  IconButton,
   Grid,
+  IconButton,
+  InputAdornment,
+  TextField,
 } from "@mui/material";
 import LockIcon from "@mui/icons-material/Lock";
 import Box from "@mui/material/Box";
+import { useAuthentication } from "@/contexts/authentication";
+import Loader from "@/components/client/loader";
 
 const firstCharPos = 0;
 
-interface AccountPageProps {
-  readonly user: User;
-}
+const AccountPage: FC = (): ReactElement | null => {
+  const { isUserLoading, user } = useAuthentication();
 
-const AccountPage: FC<AccountPageProps> = ({
-  user,
-}: AccountPageProps): ReactElement | null => {
+  if (isUserLoading) {
+    return <Loader />;
+  }
+
   return (
-    <Container fixed maxWidth="md">
-      <Paper elevation={3} square={false}>
+    <>
+      <Paper elevation={3} square={false} sx={{ mb: "2rem" }}>
         <Box
           p={4}
           gap={4}
@@ -42,18 +44,18 @@ const AccountPage: FC<AccountPageProps> = ({
           </Typography>
           <Box display={"flex"} alignItems={"center"} gap={4}>
             <Avatar
-              alt={user.displayName ?? undefined}
-              src={user.photoURL ?? undefined}
+              alt={user?.displayName ?? ""}
+              src={user?.photoURL ?? ""}
               sx={{ height: 96, width: 96 }}
             >
-              {user.displayName?.charAt(firstCharPos)}
+              {user?.displayName?.charAt(firstCharPos)}
             </Avatar>
             <Box display={"flex"} flexDirection={"column"}>
               <Typography variant={"subtitle1"} sx={{ marginLeft: 2 }}>
                 Username:
               </Typography>
               <Typography variant={"h5"} sx={{ marginLeft: 2 }}>
-                {user.displayName}
+                {user?.displayName}
               </Typography>
             </Box>
           </Box>
@@ -75,7 +77,7 @@ const AccountPage: FC<AccountPageProps> = ({
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Name"
-                value={user.displayName ?? ""}
+                value={user?.displayName ?? ""}
                 disabled
                 InputProps={{
                   endAdornment: (
@@ -91,7 +93,7 @@ const AccountPage: FC<AccountPageProps> = ({
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Email"
-                value={user.email ?? ""}
+                value={user?.email ?? ""}
                 disabled
                 InputProps={{
                   endAdornment: (
@@ -107,7 +109,7 @@ const AccountPage: FC<AccountPageProps> = ({
           </Grid>
         </Box>
       </Paper>
-    </Container>
+    </>
   );
 };
 

@@ -4,6 +4,10 @@ import { auth, getActiveUserRef } from "@/firebase/firebase";
 import type { DataSnapshot } from "firebase/database";
 import { get, remove, set, update } from "firebase/database";
 import type { ActiveUser, ActiveUserRecord } from "@/types/database";
+import {
+  createSessionCookie,
+  deleteSessionCookie,
+} from "@/utils/server-actions";
 
 const sessionCountBeforeRemoval = 1;
 const sessionCountIncrement = 1;
@@ -50,40 +54,45 @@ const setUserAsInactive = async (
   await update(getActiveUserRef(uid), { sessionCount });
 };
 
-export const signInWithGoogle = async (): Promise<UserCredential | null> => {
+export const signInWithGoogle = async (): Promise<
+  UserCredential | undefined
+> => {
   const provider = new GoogleAuthProvider();
 
+  let user: UserCredential | null = null;
+
   try {
-    const user = await signInWithPopup(auth, provider);
+    user = await signInWithPopup(auth, provider);
+  } catch (error) {
+    console.error("Error signing in with Google", error);
 
-    const { uid, displayName } = user.user;
+    return undefined;
+  }
 
-    const isOnline = await isUserActive(uid);
+  const { uid, displayName } = user.user;
 
-    let sessionCount = 1;
+  const isOnline = await isUserActive(uid);
 
-    if (isOnline) {
-      const snapshot = await findActiveUser(uid);
-      const { sessionCount: currentSessionCount } =
-        snapshot.val() as ActiveUser;
-      sessionCount = currentSessionCount + sessionCountIncrement;
+  let sessionCount = 1;
 
-      await update(getActiveUserRef(uid), { sessionCount });
+  if (isOnline) {
+    const snapshot = await findActiveUser(uid);
+    const { sessionCount: currentSessionCount } = snapshot.val() as ActiveUser;
+    sessionCount = currentSessionCount + sessionCountIncrement;
 
-      return null;
-    }
-
+    await update(getActiveUserRef(uid), { sessionCount });
+  } else {
     await setUserAsActive({
       [uid]: {
         displayName,
         sessionCount,
       },
     });
-  } catch (error) {
-    console.error("Error signing in with Google", error);
   }
 
-  return null;
+  await createSessionCookie(uid);
+
+  return user;
 };
 
 export const signOut = async (): Promise<void> => {
@@ -93,6 +102,8 @@ export const signOut = async (): Promise<void> => {
 
   try {
     await auth.signOut();
+
+    await deleteSessionCookie();
   } catch (error) {
     console.error("Error signing out with Google", error);
   }

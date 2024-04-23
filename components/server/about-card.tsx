@@ -1,4 +1,4 @@
-import type { FC, ReactElement, ReactNode } from "react";
+import type { FC, PropsWithChildren, ReactElement } from "react";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -9,15 +9,14 @@ import CardActionArea from "@mui/material/CardActionArea";
 interface AboutCardProps {
   readonly imageName: string;
   readonly name: string;
-  readonly children: ReactNode;
 }
 
 // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-const AboutCard: FC<AboutCardProps> = ({
+const AboutCard: FC<PropsWithChildren<AboutCardProps>> = ({
   imageName,
   name,
   children,
-}: AboutCardProps): ReactElement | null => {
+}: PropsWithChildren<AboutCardProps>): ReactElement | null => {
   return (
     <Grid item>
       <Card sx={{ width: 250, boxShadow: 1 }}>

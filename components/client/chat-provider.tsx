@@ -1,3 +1,5 @@
+"use client";
+
 import type { FC, ReactElement } from "react";
 import { useMemo } from "react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
@@ -24,17 +26,10 @@ import {
 } from "@chatscope/use-chat";
 import { nanoid } from "nanoid";
 import { ChatService } from "@/chat/chat-service";
-import Chat from "@/components/chat";
-import type { MatchId, MatchPlayerInfo } from "@/types/database";
-import type { User as FirebaseUser } from "@firebase/auth";
-
-interface ChatProviderProps {
-  readonly fen: string;
-  readonly player: MatchPlayerInfo | null;
-  readonly legalMoveCount: number;
-  readonly user: FirebaseUser;
-  readonly mid: MatchId;
-}
+import Chat from "@/components/client/chat";
+import type { MatchId } from "@/types/database";
+import { useMatch } from "@/contexts/match";
+import { useAuthentication } from "@/contexts/authentication";
 
 const messageIdGenerator = (): string => nanoid();
 const groupIdGenerator = (): string => nanoid();
@@ -99,25 +94,22 @@ const stockfishUser = new UseChatUser({
   bio: "",
 });
 
-const ChatProvider: FC<ChatProviderProps> = ({
-  fen,
-  player,
-  legalMoveCount,
-  user,
-  mid,
-}: ChatProviderProps): ReactElement | null => {
+const ChatProvider: FC = (): ReactElement | null => {
+  const { user } = useAuthentication();
+  const { mid } = useMatch();
+
   const userUser = useMemo(
     () =>
       new UseChatUser({
-        id: user.email ?? "",
+        id: user?.email ?? "",
         presence: new Presence({
           status: UserStatus.Available,
           description: "",
         }),
         firstName: "",
         lastName: "",
-        username: user.email ?? "",
-        email: user.email ?? "",
+        username: user?.email ?? "",
+        email: user?.email ?? "",
         avatar: "",
         bio: "",
       }),
@@ -135,14 +127,7 @@ const ChatProvider: FC<ChatProviderProps> = ({
         autoDraft: AutoDraft.Save | AutoDraft.Restore,
       }}
     >
-      <Chat
-        fen={fen}
-        player={player}
-        legalMoveCount={legalMoveCount}
-        useChatUser={userUser}
-        firebaseUser={user}
-        mid={mid}
-      />
+      <Chat useChatUser={userUser} />
     </ChatscopeChatProvider>
   );
 };
