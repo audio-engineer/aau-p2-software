@@ -39,13 +39,13 @@ const AccountPage: FC<AccountPageProps> = ({
           <Box display={"flex"} alignItems={"center"} gap={4}>
             <Avatar
               alt={user.displayName ?? undefined}
-              src={user.photoURL}
+              src={user.photoURL ?? undefined}
               sx={{ height: 96, width: 96 }}
             >
               {user.displayName?.charAt(firstCharPos)}
             </Avatar>
             <Box display={"flex"} flexDirection={"column"}>
-              <Typography variant={"h7"} sx={{ marginLeft: 2 }}>
+              <Typography variant={"subtitle1"} sx={{ marginLeft: 2 }}>
                 Username:
               </Typography>
               <Typography variant={"h5"} sx={{ marginLeft: 2 }}>
