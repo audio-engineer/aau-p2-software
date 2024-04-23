@@ -20,8 +20,8 @@ interface AccountPageProps {
 }
 
 const AccountPage: FC<AccountPageProps> = ({
-                                             user,
-                                           }: AccountPageProps): ReactElement | null => {
+  user,
+}: AccountPageProps): ReactElement | null => {
   return (
     <Container fixed maxWidth="md">
       <Paper elevation={3} square={false}>
@@ -33,7 +33,11 @@ const AccountPage: FC<AccountPageProps> = ({
           }}
           mb={4}
         >
-          <Typography variant={"h5"} gutterBottom={true} sx={{ marginBottom: 2, marginTop: 0 }}>
+          <Typography
+            variant={"h5"}
+            gutterBottom={true}
+            sx={{ marginBottom: 2, marginTop: 0 }}
+          >
             Public Profile
           </Typography>
           <Box display={"flex"} alignItems={"center"} gap={4}>
