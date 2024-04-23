@@ -88,6 +88,8 @@ declare module "chess.js" {
 
     public fen(): string;
 
+    public turn(): Color;
+
     public game_over(): boolean;
 
     public in_draw(): boolean;

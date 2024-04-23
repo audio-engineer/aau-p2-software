@@ -1,3 +1,5 @@
+"use client";
+
 import type { FC, ReactElement } from "react";
 import { useCallback, useEffect, useMemo } from "react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
@@ -23,18 +25,15 @@ import {
 import type { StockfishMessageResponse } from "@/app/api/stockfish/route";
 import { onChildAdded, push } from "firebase/database";
 import { getMessagesRef } from "@/firebase/firebase";
-import type { User as FirebaseUser } from "@firebase/auth";
-import type { MatchId, MatchPlayerInfo } from "@/types/database";
-import Fen from "chess-fen";
+import type { MatchId } from "@/types/database";
 import { getLatestMoveColor, normalizeColor } from "@/utils/utils";
+import { useAuthentication } from "@/contexts/authentication";
+import { useMatch } from "@/contexts/match";
+import Loader from "@/components/client/loader";
+import { Chess } from "chess.js";
 
 interface ChatProps {
-  readonly fen: string;
-  readonly player: MatchPlayerInfo | null;
-  readonly legalMoveCount: number;
   readonly useChatUser: UseChatUser;
-  readonly firebaseUser: FirebaseUser;
-  readonly mid: MatchId;
 }
 
 const pushNewMessage = async (
@@ -73,13 +72,11 @@ const callStockfish = async (mid: MatchId, fen: string): Promise<void> => {
 const openingMoveWasPlayed = 1;
 
 const Chat: FC<ChatProps> = ({
-  fen,
-  player,
-  legalMoveCount,
   useChatUser,
-  firebaseUser,
-  mid,
 }: ChatProps): ReactElement | null => {
+  const { isUserLoading, user } = useAuthentication();
+  const { mid, fen, player, legalMoveCount } = useMatch();
+
   const {
     currentMessages,
     activeConversation,
@@ -107,7 +104,7 @@ const Chat: FC<ChatProps> = ({
 
       let direction = MessageDirection.Outgoing;
 
-      if (message.senderId !== firebaseUser.uid) {
+      if (message.senderId !== user?.uid) {
         direction = MessageDirection.Incoming;
       }
 
@@ -126,11 +123,10 @@ const Chat: FC<ChatProps> = ({
         senderId: message.senderId,
       });
     });
-  }, [firebaseUser, mid, sendMessage]);
+  }, [user, mid, sendMessage]);
 
   useEffect(() => {
-    const { toMove } = new Fen(fen);
-    const latestMoveColor = getLatestMoveColor(toMove);
+    const latestMoveColor = getLatestMoveColor(new Chess(fen).turn());
 
     if (
       legalMoveCount < openingMoveWasPlayed ||
@@ -180,7 +176,7 @@ const Chat: FC<ChatProps> = ({
       id: "",
       content: text as unknown as MessageContent<MessageContentType.TextHtml>,
       contentType: MessageContentType.TextHtml,
-      senderId: firebaseUser.uid,
+      senderId: user?.uid ?? "",
       direction: MessageDirection.Outgoing,
       status: MessageStatus.Sent,
       updatedTime: new Date(),
@@ -214,6 +210,10 @@ const Chat: FC<ChatProps> = ({
 
     return undefined;
   }, [activeConversation, getUser]);
+
+  if (isUserLoading) {
+    return <Loader />;
+  }
 
   return (
     <MainContainer>

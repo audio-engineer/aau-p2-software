@@ -1,15 +1,27 @@
 import type { FC, ReactElement } from "react";
 import Typography from "@mui/material/Typography";
-import AboutCard from "@/components/about-card";
+import AboutCard from "@/components/server/about-card";
 import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
 
 const AboutPage: FC = (): ReactElement | null => {
   return (
-    <Grid container direction="column">
-      <Typography variant="h1" align="center">
+    <Box display="flex" flexDirection="column">
+      <Typography
+        variant="h3"
+        align="center"
+        display={{ xs: "initial", md: "none" }}
+      >
         About Us
       </Typography>
-      <Typography variant="h6" sx={{ paddingBottom: 4 }} textAlign="center">
+      <Typography
+        variant="h2"
+        align="center"
+        display={{ xs: "none", md: "initial" }}
+      >
+        About Us
+      </Typography>
+      <Typography variant="body1" sx={{ paddingBottom: 4 }} textAlign="center">
         ChessTeacher is a semester project created by the group of computer
         science students seen below. The project was created to understand how a
         chess web app could be created, and to experiment with teaching
@@ -47,7 +59,7 @@ const AboutPage: FC = (): ReactElement | null => {
           porttitor sapien.
         </AboutCard>
       </Grid>
-    </Grid>
+    </Box>
   );
 };
 

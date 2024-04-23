@@ -56,6 +56,11 @@ export default tseslint.config(
             },
             {
               from: "package",
+              package: "next",
+              name: ["NextRequest"],
+            },
+            {
+              from: "package",
               package: "react",
               name: ["ChangeEvent", "MouseEvent", "ReactNode"],
             },

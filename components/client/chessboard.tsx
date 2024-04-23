@@ -1,21 +1,34 @@
+"use client";
+
 import type { FC, ReactElement } from "react";
 import { useMemo } from "react";
 import type { Move, Square } from "chess.js";
 import { Chess } from "chess.js";
 import { Chessboard as ReactChessboard } from "react-chessboard";
-import type { MatchPlayerInfo } from "@/types/database";
+import { useMatch } from "@/contexts/match";
+import Loader from "@/components/client/loader";
+import type { MatchId } from "@/types/database";
+import { update } from "firebase/database";
+import { getMatchStateRef } from "@/firebase/firebase";
 
-interface ChessboardProps {
-  readonly fen: string;
-  readonly player: MatchPlayerInfo | null;
-  readonly onLegalMove: (fen: string) => void;
-}
+const updateRemoteState = async (mid: MatchId, fen: string): Promise<void> => {
+  await update(getMatchStateRef(mid), {
+    fen,
+  });
+};
 
-const Chessboard: FC<ChessboardProps> = ({
-  fen,
-  player,
-  onLegalMove,
-}: ChessboardProps): ReactElement | null => {
+const Chessboard: FC = (): ReactElement | null => {
+  const {
+    mid,
+    fen,
+    setFen,
+    player,
+    legalMoveCount,
+    setLegalMoveCount,
+    legalMoveCountIncrease,
+    isRemoteFenLoading,
+  } = useMatch();
+
   const makeAMove = (move: Readonly<Move>): Move | null => {
     if (!player) {
       return null;
@@ -29,7 +42,13 @@ const Chessboard: FC<ChessboardProps> = ({
       return null;
     }
 
-    onLegalMove(gameCopy.fen());
+    const newFen = gameCopy.fen();
+
+    setFen(newFen);
+    setLegalMoveCount(legalMoveCount + legalMoveCountIncrease);
+    updateRemoteState(mid, newFen).catch((error: unknown) => {
+      console.error(error);
+    });
 
     return result;
   };
@@ -51,6 +70,10 @@ const Chessboard: FC<ChessboardProps> = ({
 
     return "black";
   }, [player]);
+
+  if (isRemoteFenLoading) {
+    return <Loader />;
+  }
 
   return (
     <ReactChessboard

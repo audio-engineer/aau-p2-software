@@ -52,6 +52,18 @@ first:
 npm run prettier && npx eslint .
 ```
 
+To check whether the project can be compiled for production, run the `build` command:
+
+```shell
+NODE_ENV=production npm run build
+```
+
+Then, start the production server with:
+
+```shell
+NODE_ENV=production npm run start
+```
+
 After a finished development cycle, exit the `server` container and run:
 
 ```shell

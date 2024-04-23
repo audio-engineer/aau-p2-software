@@ -1,4 +1,12 @@
-import type { FC, MouseEvent, ReactElement, ReactNode } from "react";
+"use client";
+
+import type {
+  FC,
+  MouseEvent,
+  PropsWithChildren,
+  ReactElement,
+  ReactNode,
+} from "react";
 import { useState } from "react";
 import Popover from "@mui/material/Popover";
 import Typography from "@mui/material/Typography";
@@ -6,16 +14,15 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import SvgIcon from "@mui/material/SvgIcon";
 
-interface PopoverProps {
+interface HomePagePopoverProps {
   readonly icon: ReactNode;
-  readonly children: ReactNode;
 }
 
 // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-const HomePagePopover: FC<PopoverProps> = ({
+const HomePagePopover: FC<PropsWithChildren<HomePagePopoverProps>> = ({
   icon,
   children,
-}: PopoverProps): ReactElement | null => {
+}: PropsWithChildren<HomePagePopoverProps>): ReactElement | null => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>): void => {

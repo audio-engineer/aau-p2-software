@@ -1,37 +1,37 @@
+"use client";
+
 import { Roboto } from "next/font/google";
-import type { PaletteMode, PaletteOptions, ThemeOptions } from "@mui/material";
+import type { ColorSystemOptions, CssVarsThemeOptions } from "@mui/material";
+import { experimental_extendTheme as extendTheme } from "@mui/material/styles";
 
 const roboto = Roboto({ subsets: ["latin"], weight: "500" });
 
-const commonPalette: PaletteOptions = {};
+const commonPalette: ColorSystemOptions = {
+  palette: {},
+};
 
-const lightPalette: PaletteOptions = {
+const lightPalette: ColorSystemOptions = {
   ...commonPalette,
-  primary: {
-    main: "#9e8d8d",
+  palette: {
+    primary: {
+      main: "#9e8d8d",
+    },
   },
 };
 
-const darkPalette: PaletteOptions = {
+const darkPalette: ColorSystemOptions = {
   ...commonPalette,
+  palette: {},
 };
 
-export const getThemeOptions = (paletteMode: PaletteMode): ThemeOptions => {
-  let palette: PaletteOptions = {};
-
-  if ("light" === paletteMode) {
-    palette = lightPalette;
-  } else {
-    palette = darkPalette;
-  }
-
-  return {
-    palette: {
-      mode: paletteMode,
-      ...palette,
-    },
-    typography: {
-      fontFamily: roboto.style.fontFamily,
-    },
-  };
+export const cssVarsThemeOptions: CssVarsThemeOptions = {
+  colorSchemes: {
+    dark: { ...darkPalette },
+    light: { ...lightPalette },
+  },
+  typography: {
+    fontFamily: roboto.style.fontFamily,
+  },
 };
+
+export const theme = extendTheme(cssVarsThemeOptions);
