@@ -13,7 +13,7 @@ jobs:
           node-version: 20
           cache: npm
       - name: Install Packages
-        run: npm ci --force
+        run: npm ci
       - name: Run ESLint
         continue-on-error: true
         run: npm run lint:ci
