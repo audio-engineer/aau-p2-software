@@ -50,13 +50,10 @@ const AboutPage: FC = (): ReactElement | null => {
           venenatis ex magna, eget viverra sem viverra et. Pellentesque nec
           porttitor sapien.
         </AboutCard>
-        <AboutCard
-          imageName="default_picture.jpg"
-          name="Kristiyan Mariyan Georgiev"
-        >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean
-          venenatis ex magna, eget viverra sem viverra et. Pellentesque nec
-          porttitor sapien.
+        <AboutCard imageName="kristiyan.jpg" name="Kristiyan Mariyan Georgiev">
+          Kristiyan is a 20-year-old student with interest in anything but
+          chess. But because he likes tackling new challenges and learning new
+          things, he decided to join the ChessTeacher project.
         </AboutCard>
       </Grid>
     </Box>
