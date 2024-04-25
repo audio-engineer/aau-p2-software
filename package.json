@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS='--inspect' next dev",
+    "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -24,6 +24,7 @@
     "@mui/material-nextjs": "^5.15.11",
     "@mui/x-data-grid": "^7.3.0",
     "@tanstack/react-query": "^5.29.2",
+    "@vercel/speed-insights": "^1.0.10",
     "chess.js": "^0.13.4",
     "firebase": "^10.11.0",
     "jose": "^5.2.4",

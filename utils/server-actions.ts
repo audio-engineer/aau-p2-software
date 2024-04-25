@@ -16,7 +16,7 @@ export const deleteSessionCookie = async (): Promise<void> => {
 export const verifySession = async (): Promise<SessionPayload | null> => {
   const sessionCookieValue = cookies().get("session")?.value;
 
-  if (undefined === sessionCookieValue) {
+  if (undefined === sessionCookieValue || "" === sessionCookieValue) {
     return null;
   }
 

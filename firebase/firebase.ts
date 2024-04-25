@@ -19,9 +19,6 @@ export const app = initializeApp(firebaseConfig);
 export const database = getDatabase(app);
 export const auth = getAuth(app);
 
-export const getActiveUserRef = (uid: User["uid"]): DatabaseReference =>
-  ref(database, `activeUsers/${uid}`);
-
 export const getMatchesRef = (): DatabaseReference => ref(database, "matches");
 
 export const getMatchPlayersRef = (mid: MatchId): DatabaseReference =>
@@ -38,13 +35,7 @@ export const getMatchStateRef = (mid: MatchId): DatabaseReference =>
 export const getMessagesRef = (mid: MatchId): DatabaseReference =>
   ref(database, `messages/${mid}`);
 
-/**
- * TODO Currently the app is hardcoded to use the emulators by default. This
- * should be changed later on so that it's convenient to switch between hosted
- * emulated Firebase.
- */
-// eslint-disable-next-line
-if (true) {
+if ("production" !== process.env.NODE_ENV) {
   connectDatabaseEmulator(
     database,
     process.env.NEXT_PUBLIC_FIREBASE_DATABASE_EMULATOR_HOST ?? "localhost",

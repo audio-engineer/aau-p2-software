@@ -61,7 +61,7 @@ NODE_ENV=production npm run build
 Then, start the production server with:
 
 ```shell
-NODE_ENV=production npm run start
+NODE_ENV=production npm run start # WARNING: THIS WILL USE THE PRODUCTION FIREBASE RESOURCES!
 ```
 
 After a finished development cycle, exit the `server` container and run:
