@@ -1,0 +1,12 @@
+.devcontainer
+.github
+.editorconfig
+.env.local.sample
+.env.sample
+.gitattributes
+.gitignore
+.prettierignore
+.prettierrc
+compose.yaml
+eslint.config.js
+README.md
