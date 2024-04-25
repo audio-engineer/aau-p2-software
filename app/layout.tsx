@@ -7,6 +7,7 @@ import { theme } from "@/app/theme";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
 import CssBaseline from "@mui/material/CssBaseline";
 import InitColorSchemeScript from "@/components/client/init-color-scheme-script";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: "ChessTeacher",
@@ -27,6 +28,7 @@ const RootLayout: FC<PropsWithChildren> = ({ children }: PropsWithChildren) => {
             </Providers>
           </CssVarsProvider>
         </AppRouterCacheProvider>
+        <SpeedInsights />
       </body>
     </html>
   );

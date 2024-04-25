@@ -3,6 +3,7 @@ import MatchPage from "@/components/server/match-page";
 import type { MatchId } from "@/types/database";
 import { verifySession } from "@/utils/server-actions";
 import MatchProvider from "@/components/client/providers/match-provider";
+import { redirect } from "next/navigation";
 
 interface MatchProps {
   readonly params: {
@@ -16,7 +17,7 @@ const Match: FC<MatchProps> = async ({
   const session = await verifySession();
 
   if (!session) {
-    return null;
+    redirect("/");
   }
 
   return (

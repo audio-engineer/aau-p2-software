@@ -19,7 +19,6 @@ import {
 } from "firebase/database";
 import { getMatchesRef, getMatchPlayerRef } from "@/firebase/firebase";
 import type { User } from "@firebase/auth";
-import type { SessionUser } from "@/types/session";
 import { findPlayerUidByPlayerNumber } from "@/utils/utils";
 import type { Color } from "chess.js";
 import { toast } from "react-toastify";
@@ -39,7 +38,7 @@ interface MatchRowModel {
 const getMatchRowPlayerData = (
   matchRecord: MatchRecord,
   key: string,
-  uid: SessionUser["uid"] | undefined,
+  uid: User["uid"] | undefined,
 ): MatchRowPlayerData | undefined => {
   if (undefined === uid) {
     return undefined;

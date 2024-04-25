@@ -1,8 +1,9 @@
 import "server-only";
 
 import { jwtVerify, SignJWT } from "jose";
-import type { SessionPayload, SessionUser } from "@/types/session";
+import type { SessionPayload } from "@/types/session";
 import { cookies } from "next/headers";
+import type { User } from "@firebase/auth";
 
 const encodedKey = new TextEncoder().encode(process.env.SECRET_KEY);
 
@@ -43,7 +44,7 @@ export const decrypt = async (
   return undefined;
 };
 
-export const createSession = async (uid: SessionUser["uid"]): Promise<void> => {
+export const createSession = async (uid: User["uid"]): Promise<void> => {
   const sessionCookieValue = await encrypt({
     uid,
     maxAge: oneWeek,
