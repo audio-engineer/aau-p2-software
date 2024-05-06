@@ -45,10 +45,11 @@ const AboutPage: FC = (): ReactElement | null => {
           venenatis ex magna, eget viverra sem viverra et. Pellentesque nec
           porttitor sapien.
         </AboutCard>
-        <AboutCard imageName="default_picture.jpg" name="Mads Heilmann">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean
-          venenatis ex magna, eget viverra sem viverra et. Pellentesque nec
-          porttitor sapien.
+        <AboutCard imageName="mads.jpg" name="Mads Heilmann">
+          Meet Mads Heilmann, a 23-year-old computer science student at AAU.
+          Enhancing the ChessTeacher project with his creative touch, he is
+          crafting a captivating multiplayer experience for effortless chess
+          learning.
         </AboutCard>
         <AboutCard imageName="kristiyan.jpg" name="Kristiyan Mariyan Georgiev">
           Kristiyan is a 20-year-old student with interest in anything but
