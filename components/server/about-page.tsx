@@ -35,10 +35,10 @@ const AboutPage: FC = (): ReactElement | null => {
           University Copenhagen, is one of the creators behind the ChessTeacher
           chess web-app.
         </AboutCard>
-        <AboutCard imageName="default_picture.jpg" name="Simon Woidmann">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean
-          venenatis ex magna, eget viverra sem viverra et. Pellentesque nec
-          porttitor sapien.
+        <AboutCard imageName="simon.jpg" name="Simon Woidmann">
+          Simon Woidemann, a 20-year-old computer science student at Aalborg
+          University Copenhagen, is one of the creators behind the ChessTeacher
+          chess web-app.
         </AboutCard>
         <AboutCard imageName="default_picture.jpg" name="Martin Kedmenec">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean
