@@ -40,10 +40,9 @@ const AboutPage: FC = (): ReactElement | null => {
           University Copenhagen, is one of the creators behind the ChessTeacher
           chess web-app.
         </AboutCard>
-        <AboutCard imageName="default_picture.jpg" name="Martin Kedmenec">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean
-          venenatis ex magna, eget viverra sem viverra et. Pellentesque nec
-          porttitor sapien.
+        <AboutCard imageName="martin.jpeg" name="Martin Kedmenec">
+          28-year-old student at Aalborg University, Copenhagen. Likes to write
+          code.
         </AboutCard>
         <AboutCard imageName="mads.jpg" name="Mads Heilmann">
           Meet Mads Heilmann, a 23-year-old computer science student at AAU.
