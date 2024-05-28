@@ -41,7 +41,7 @@ export default tseslint.config(
             },
             {
               from: "package",
-              package: "@firebase/auth",
+              package: "firebase/auth",
               name: ["User"],
             },
             {

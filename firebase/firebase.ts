@@ -1,9 +1,9 @@
 import { initializeApp } from "firebase/app";
 import type { DatabaseReference } from "firebase/database";
 import { connectDatabaseEmulator, getDatabase, ref } from "firebase/database";
+import type { User } from "firebase/auth";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
 import type { MatchId } from "@/types/database";
-import type { User } from "@firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,

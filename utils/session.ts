@@ -3,7 +3,7 @@ import "server-only";
 import { jwtVerify, SignJWT } from "jose";
 import type { SessionPayload } from "@/types/session";
 import { cookies } from "next/headers";
-import type { User } from "@firebase/auth";
+import type { User } from "firebase/auth";
 
 const encodedKey = new TextEncoder().encode(process.env.SECRET_KEY);
 

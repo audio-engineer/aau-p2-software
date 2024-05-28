@@ -30,11 +30,14 @@ export interface StockfishMessageResponse {
 }
 
 export const POST = async (request: Request): Promise<Response> => {
-  const response = await fetch("http://stockfish:8000/evaluate-position", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(await request.json()),
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_STOCKFISH_API_HOST ?? "http://stockfish:8000"}/evaluate-position`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(await request.json()),
+    },
+  );
 
   const responseJson =
     (await response.json()) as DataResponse<EvaluatePositionResponse>;
