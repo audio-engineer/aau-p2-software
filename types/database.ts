@@ -1,4 +1,4 @@
-import type { User } from "@firebase/auth";
+import type { User } from "firebase/auth";
 import type { Color } from "chess.js";
 
 export enum PlayerNumber {

@@ -18,7 +18,7 @@ import {
   set,
 } from "firebase/database";
 import { getMatchesRef, getMatchPlayerRef } from "@/firebase/firebase";
-import type { User } from "@firebase/auth";
+import type { User } from "firebase/auth";
 import { findPlayerUidByPlayerNumber } from "@/utils/utils";
 import type { Color } from "chess.js";
 import { toast } from "react-toastify";

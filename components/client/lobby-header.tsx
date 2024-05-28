@@ -10,7 +10,7 @@ import Select, { type SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import type { Color } from "chess.js";
-import type { User } from "@firebase/auth";
+import type { User } from "firebase/auth";
 import { push } from "firebase/database";
 import { getMatchesRef } from "@/firebase/firebase";
 import type { Match } from "@/types/database";

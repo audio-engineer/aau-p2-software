@@ -2,8 +2,8 @@
 
 import type { FC, PropsWithChildren, ReactElement } from "react";
 import { useEffect, useMemo, useState } from "react";
-import type { User } from "@firebase/auth";
-import { onAuthStateChanged } from "@firebase/auth";
+import type { User } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/firebase/firebase";
 import Authentication from "@/contexts/authentication";
 

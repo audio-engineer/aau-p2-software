@@ -1,7 +1,7 @@
 "use server";
 
 import { createSession, decrypt, deleteSession } from "@/utils/session";
-import type { User } from "@firebase/auth";
+import type { User } from "firebase/auth";
 import type { SessionPayload } from "@/types/session";
 import { cookies } from "next/headers";
 
